@@ -24,7 +24,7 @@ export class TemplateRenderer {
       // Add usage
       sections.push(
         "**Usage**: Claude Code automatically uses this server when appropriate.",
-        ""
+        "",
       );
 
       // Add examples if available

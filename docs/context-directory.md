@@ -76,8 +76,8 @@ export class BasicMemoryServer extends BaseMCPServer {
     category: "core",
 
     // Git settings
-    contextFolder: "basic-memory",  // Custom folder name (optional)
-    exposeContextToGit: true,       // Expose this folder to git
+    contextFolder: "basic-memory", // Custom folder name (optional)
+    exposeContextToGit: true, // Expose this folder to git
   };
 }
 ```
@@ -118,7 +118,7 @@ export class SequentialThinkingServer extends BaseMCPServer {
     name: "Sequential Thinking",
     description: "Multi-step reasoning",
     category: "core",
-    contextFolder: "sequential-thinking",  // Use dashes in folder name
+    contextFolder: "sequential-thinking", // Use dashes in folder name
     // Git behavior: Gitignored
   };
 }
@@ -134,7 +134,7 @@ export class BasicMemoryServer extends BaseMCPServer {
     description: "Persistent memory",
     category: "core",
     contextFolder: "basic-memory",
-    exposeContextToGit: true,  // Track in git
+    exposeContextToGit: true, // Track in git
   };
 }
 ```
@@ -173,6 +173,7 @@ await ContextDirManager.updateGitignore("context", ["basic-memory"]);
 ### Custom Resources
 
 Projects can also use the context directory for:
+
 - Custom prompts for Claude Code
 - Project-specific AI instructions
 - Shared knowledge bases

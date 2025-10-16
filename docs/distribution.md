@@ -5,6 +5,7 @@ Guide for distributing fluent-toolkit to colleagues via Homebrew.
 ## Option 1: Private Homebrew Tap (Recommended)
 
 **Advantages:**
+
 - Professional distribution method
 - Easy for colleagues to install and update
 - Repo can remain private on GitHub
@@ -20,6 +21,7 @@ deno task compile:all
 ```
 
 This creates binaries in `dist/`:
+
 - `ftk-darwin-x86_64` - Intel Macs
 - `ftk-darwin-arm64` - Apple Silicon Macs
 - `ftk-linux-x86_64` - Linux (optional)
@@ -201,6 +203,7 @@ If you don't want to create a tap repository, colleagues can install directly fr
    ```
 
 **Downsides:**
+
 - No `brew upgrade` support
 - Less discoverable
 - No tap namespace
@@ -226,6 +229,7 @@ Simplest approach for quick testing:
      ```
 
 **Downsides:**
+
 - No automatic updates
 - Manual installation for each colleague
 - No dependency management
@@ -237,6 +241,7 @@ Simplest approach for quick testing:
 **Start with Option 1 (Private Homebrew Tap)**
 
 Why?
+
 - Professional and scalable
 - Easy to update and maintain
 - Colleagues get familiar with the standard installation method

@@ -5,12 +5,7 @@
 
 import { join } from "@std/path";
 import { ensureDir, exists } from "@std/fs";
-import type {
-  MCPConfigFile,
-  MCPServerEntry,
-  ProjectConfig,
-  UserConfig,
-} from "../types/index.ts";
+import type { MCPConfigFile, MCPServerEntry, ProjectConfig, UserConfig } from "../types/index.ts";
 
 export class ConfigManager {
   /**
@@ -66,7 +61,9 @@ export class ConfigManager {
       const content = await Deno.readTextFile(configPath);
       return JSON.parse(content) as UserConfig;
     } catch (error) {
-      throw new Error(`Failed to load user config: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load user config: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -112,7 +109,9 @@ export class ConfigManager {
       const content = await Deno.readTextFile(configPath);
       return JSON.parse(content) as ProjectConfig;
     } catch (error) {
-      throw new Error(`Failed to load project config: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load project config: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -159,7 +158,9 @@ export class ConfigManager {
       const content = await Deno.readTextFile(configPath);
       return JSON.parse(content) as MCPConfigFile;
     } catch (error) {
-      throw new Error(`Failed to load MCP config: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load MCP config: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -176,7 +177,7 @@ export class ConfigManager {
    */
   static async updateMCPConfig(
     serverId: string,
-    serverConfig: MCPServerEntry
+    serverConfig: MCPServerEntry,
   ): Promise<void> {
     let config = await this.getMCPConfig();
 

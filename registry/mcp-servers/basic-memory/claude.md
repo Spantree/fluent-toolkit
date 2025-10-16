@@ -12,12 +12,23 @@
 **Folder Structure**:
 
 ```
+features/         # Feature documentation (not prefixed with issue numbers, may span multiple issues)
 guides/           # How-to documentation and usage instructions
-plans/            # Complex multi-phase task management with status tracking
+plans/            # Issue-specific task management with status tracking (prefixed with issue-N-)
 notes/            # Project-specific documentation
 technologies/     # Technical documentation and architecture
 meetings/         # Meeting notes and transcripts (YYYY-MM-DDTHH-MM-SS_topic.md)
 research/         # Cached Exa deep research results with full prompt and response
+```
+
+**Feature Files** (`features/` folder):
+Document implemented features without issue number prefixes. Features may span multiple issues over time. Use `related-to` relations to link to implementing issues:
+
+```markdown
+## relations
+
+- related-to: [[issue-6-pin-mcp-server-versions]]
+- related-to: [[issue-12-version-caching]]
 ```
 
 **Plan Files** (`plans/` folder):

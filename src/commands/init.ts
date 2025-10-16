@@ -11,7 +11,7 @@ import { ClaudeMdManager } from "../core/claude-md.ts";
 import { ContextDirManager } from "../core/context-dir.ts";
 import { Prompts } from "../ui/prompts.ts";
 import { DefaultLifecycleContext } from "../lib/lifecycle-context.ts";
-import type { InitOptions, MCPServerModule } from "../types/index.ts";
+import type { InitOptions, MCPServerEntry, MCPServerModule } from "../types/index.ts";
 
 export class InitCommand {
   /**
@@ -32,7 +32,7 @@ export class InitCommand {
 
         const shouldContinue = await Prompts.confirm(
           "This project is already initialized. Continue anyway?",
-          false
+          false,
         );
 
         if (!shouldContinue) {
@@ -47,7 +47,7 @@ export class InitCommand {
       const optionalServers = ServerRegistry.getOptional();
 
       Prompts.info(
-        `Found ${coreServers.length} core servers and ${optionalServers.length} optional servers`
+        `Found ${coreServers.length} core servers and ${optionalServers.length} optional servers`,
       );
 
       // 3. Server selection
@@ -66,7 +66,9 @@ export class InitCommand {
       } else if (options.noPrompt) {
         // Use all core servers as default when --no-prompt is set
         selectedServers = coreServers;
-        Prompts.info(`Installing core servers: ${coreServers.map(s => s.metadata.name).join(", ")}`);
+        Prompts.info(
+          `Installing core servers: ${coreServers.map((s) => s.metadata.name).join(", ")}`,
+        );
       } else {
         // Interactive selection
         const selectedIds = await Prompts.multiSelect(
@@ -76,7 +78,12 @@ export class InitCommand {
             name: s.metadata.name,
             description: s.metadata.description,
             category: s.metadata.category,
-          })) as any // Type workaround for Prompts
+          })) as Array<{
+            id: string;
+            name: string;
+            description: string;
+            category: string;
+          }>,
         );
 
         selectedServers = selectedIds
@@ -90,15 +97,13 @@ export class InitCommand {
       }
 
       // 4. Prompt for context directory name
-      const contextDirName = options.noPrompt
-        ? "context"
-        : await Prompts.requestContextDirName();
+      const contextDirName = options.noPrompt ? "context" : await Prompts.requestContextDirName();
 
       // 6. Create lifecycle context
       const ctx = new DefaultLifecycleContext();
 
       // 7. Run lifecycle for each server
-      const mcpConfig: Record<string, any> = {};
+      const mcpConfig: Record<string, MCPServerEntry> = {};
       const installedServers: MCPServerModule[] = [];
 
       for (const server of selectedServers) {
@@ -128,7 +133,7 @@ export class InitCommand {
 
             const shouldContinue = await Prompts.confirm(
               `Continue with ${server.metadata.name} anyway?`,
-              false
+              false,
             );
 
             if (!shouldContinue) {
@@ -143,7 +148,9 @@ export class InitCommand {
         const configResult = await server.configure(ctx);
 
         if (!configResult.success) {
-          Prompts.error(`Configuration failed for ${server.metadata.name}: ${configResult.message}`);
+          Prompts.error(
+            `Configuration failed for ${server.metadata.name}: ${configResult.message}`,
+          );
           continue;
         }
 
@@ -160,7 +167,9 @@ export class InitCommand {
         const installResult = await server.install(ctx);
 
         if (!installResult.success) {
-          Prompts.error(`Installation failed for ${server.metadata.name}: ${installResult.message}`);
+          Prompts.error(
+            `Installation failed for ${server.metadata.name}: ${installResult.message}`,
+          );
           continue;
         }
 
@@ -201,7 +210,7 @@ export class InitCommand {
           if (server.metadata.contextFolder || server.metadata.exposeContextToGit) {
             await ContextDirManager.createServerContextDir(
               server.metadata.id,
-              server.metadata.contextFolder
+              server.metadata.contextFolder,
             );
           }
         }
@@ -222,13 +231,13 @@ export class InitCommand {
         const content = server.getClaudeMdContent();
         await ClaudeMdManager.upsertSection(
           `mcp:${server.metadata.id}`,
-          content
+          content,
         );
       }
 
       // Ensure .gitignore
       const hasSecrets = installedServers.some(
-        (s) => s.getSecrets && s.getSecrets().length > 0
+        (s) => s.getSecrets && s.getSecrets().length > 0,
       );
       if (hasSecrets) {
         await SecretsManager.ensureGitignore();
@@ -263,7 +272,9 @@ export class InitCommand {
 
       console.log("\n🎓 Learn more at https://fluentwork.shop\n");
     } catch (error) {
-      Prompts.error(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
+      Prompts.error(
+        `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }

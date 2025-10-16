@@ -11,7 +11,7 @@ export class DependencyValidator {
    */
   static async checkRuntime(
     runtime: string,
-    minVersion?: string
+    minVersion?: string,
   ): Promise<ValidationResult> {
     // Check if command exists
     const exists = await this.commandExists(runtime);
@@ -157,7 +157,7 @@ export class DependencyValidator {
    * Validate all dependencies for a list of system dependencies
    */
   static async validateDependencies(
-    dependencies: SystemDependency[]
+    dependencies: SystemDependency[],
   ): Promise<Record<string, ValidationResult>> {
     const results: Record<string, ValidationResult> = {};
 
@@ -174,7 +174,7 @@ export class DependencyValidator {
    * Check if all dependencies are satisfied
    */
   static areAllDependenciesSatisfied(
-    results: Record<string, ValidationResult>
+    results: Record<string, ValidationResult>,
   ): boolean {
     return Object.values(results).every((result) => result.success);
   }

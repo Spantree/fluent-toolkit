@@ -36,6 +36,7 @@
     "@std/path": "jsr:@std/path@^1.0.0",
     "@std/fs": "jsr:@std/fs@^1.0.0",
     "@std/jsonc": "jsr:@std/jsonc@^1.0.0",
+    "@std/yaml": "jsr:@std/yaml@^1.0.0",
     "@cliffy/prompt": "https://deno.land/x/cliffy@v1.0.0-rc.4/prompt/mod.ts",
     "@cliffy/command": "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts",
     "@cliffy/ansi/colors": "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts"

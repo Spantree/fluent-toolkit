@@ -14,7 +14,8 @@ export class ExaServer extends BaseMCPServer {
     name: "Exa Research",
     description: "Powerful web search and research capabilities with AI-powered content extraction",
     category: "optional",
-    version: "1.0.0",
+    packageName: "mcp-server-exa",
+    packageRegistry: "pypi",
     homepage: "https://exa.ai",
   };
 
@@ -42,9 +43,13 @@ export class ExaServer extends BaseMCPServer {
     ];
   }
 
-  protected override generateMcpConfig(_secrets: Record<string, string>) {
+  protected override generateMcpConfig(_secrets: Record<string, string>, version?: string) {
     // Use uvx with dotenv wrapper to inject EXA_API_KEY
-    return createUvxConfigWithSecrets("mcp-server-exa");
+    return createUvxConfigWithSecrets(
+      "mcp-server-exa",
+      ".env.mcp.secrets",
+      version,
+    );
   }
 
   override getClaudeMdContent(): string {
