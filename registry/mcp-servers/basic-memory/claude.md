@@ -1,29 +1,40 @@
 ### Basic Memory
 
-**Purpose**: Persistent memory and note-taking capabilities for Claude Code across sessions.
+**Purpose**: Persistent knowledge graph for Claude Code sessions. Stores notes with relationships, observations, and metadata.
 
-**Tools**:
-- `write_note` - Create or update notes with content and tags
-- `read_note` - Read the content of a specific note
-- `list_notes` - List all available notes with filtering options
-- `search_notes` - Search notes by content or tags
-- `delete_note` - Remove a note from memory
-- `move_note` - Rename a note
+**File Conventions** (CRITICAL):
+- **Titles**: kebab-case filenames (e.g., `oracle-health-integration`)
+- **Frontmatter**: Title Case in YAML `title` field
+- **Access**: ALL operations through MCP tools only, NEVER direct file edits
+- **Format**: Run Prettier on content before writing: `echo "$content" | npx prettier --parser markdown`
 
-**Usage**: Basic Memory allows Claude to maintain persistent knowledge across sessions. Notes are stored in `context/basic-memory/` and can be tagged for organization.
-
-**Example**:
+**Folder Structure**:
 ```
-Remember this architecture decision: We're using a modular registry pattern for MCP servers.
-Tags: architecture, design-patterns
-
-Search my notes for architecture decisions
-
-What did I note about the deployment process?
+guides/           # How-to documentation
+plans/            # Multi-step research with task checklists
+notes/            # Project-specific docs
+technologies/     # Technical documentation
+meetings/         # Transcripts (YYYY-MM-DDTHH-MM-SS_topic.md)
 ```
 
-**Best Practices**:
-- Use descriptive note names without qualifiers like "enhanced" or "comprehensive"
-- Tag notes with relevant categories for easy retrieval
-- Store important project decisions, patterns, and learnings
-- Check existing notes before creating duplicates
+**Required Metadata** (append to all notes):
+```markdown
+## observations
+- [category] insight #tag (optional context)
+
+## relations
+- depends-on: [[prerequisite]]
+- relates-to: [[topic]]
+- uses-technology: [tech1, tech2]
+```
+
+**Observation Categories**: `[fact]`, `[architecture]`, `[design-decision]`, `[business-insight]`, `[integration]`, `[use-case]`, `[limitation]`
+
+**Workflow**:
+1. Search existing notes before creating new ones
+2. Use `build_context` for gathering related notes
+3. Create plan files in `plans/` for multi-step work
+4. Always include observations + relations sections
+5. Format with Prettier before writing
+
+**Tags**: lowercase-hyphenated, avoid qualifiers ("comprehensive", "complete")
