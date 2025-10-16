@@ -42,8 +42,8 @@ status: active  # draft | active | complete
 - [ ] Another upcoming task
 ```
 
-**Plan Management** (use with Sequential if installed):
-- Use Sequential to break down complex objectives into phases
+**Plan Management**:
+- Use Sequential (if available) to break down complex objectives into phases
 - Update plan status as work progresses (📌 BACKLOG → ⏳ IN PROGRESS → ✅ COMPLETED)
 - Edit notes to check off tasks `[x]` and add discovered work items
 - Plans track multi-session objectives, not single-session todos
