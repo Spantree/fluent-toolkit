@@ -25,6 +25,11 @@ export class InitCommand {
       // 1. Check if already initialized
       const isInitialized = await ConfigManager.isProjectInitialized();
       if (isInitialized && !options.force) {
+        if (options.noPrompt) {
+          Prompts.info("Project already initialized (use --force to override)");
+          return;
+        }
+
         const shouldContinue = await Prompts.confirm(
           "This project is already initialized. Continue anyway?",
           false
@@ -58,6 +63,10 @@ export class InitCommand {
           Prompts.warning("No valid servers selected. Exiting.");
           return;
         }
+      } else if (options.noPrompt) {
+        // Use all core servers as default when --no-prompt is set
+        selectedServers = coreServers;
+        Prompts.info(`Installing core servers: ${coreServers.map(s => s.metadata.name).join(", ")}`);
       } else {
         // Interactive selection
         const selectedIds = await Prompts.multiSelect(
@@ -81,7 +90,9 @@ export class InitCommand {
       }
 
       // 4. Prompt for context directory name
-      const contextDirName = await Prompts.requestContextDirName();
+      const contextDirName = options.noPrompt
+        ? "context"
+        : await Prompts.requestContextDirName();
 
       // 6. Create lifecycle context
       const ctx = new DefaultLifecycleContext();
@@ -108,6 +119,11 @@ export class InitCommand {
                   console.log(`     Install: ${missing.installCommand}`);
                 }
               }
+            }
+
+            if (options.noPrompt) {
+              Prompts.info(`Skipping ${server.metadata.name} (missing dependencies)`);
+              continue;
             }
 
             const shouldContinue = await Prompts.confirm(

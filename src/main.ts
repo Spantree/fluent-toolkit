@@ -25,11 +25,13 @@ await new Command()
   .option("-f, --force", "Force re-initialization even if already configured")
   .option("--skip-validation", "Skip dependency validation checks")
   .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
+  .option("--no-prompt", "Accept all defaults without prompting")
   .action(async (options) => {
     const initOptions: InitOptions = {
       force: options.force,
       skipValidation: options.skipValidation,
       servers: options.servers,
+      noPrompt: options.noPrompt,
     };
 
     await InitCommand.execute(initOptions);

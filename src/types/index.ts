@@ -118,6 +118,7 @@ export interface InitOptions {
   skipValidation?: boolean;
   force?: boolean;
   servers?: string[];
+  noPrompt?: boolean;
 }
 
 // Registry Metadata
