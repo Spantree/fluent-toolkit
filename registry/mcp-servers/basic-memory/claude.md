@@ -4,8 +4,11 @@
 
 **File Conventions** (CRITICAL):
 
-- **Titles**: kebab-case filenames (e.g., `authentication-flow`, `api-design-patterns`)
-- **Frontmatter**: Title Case in YAML `title` field
+- **Filenames**: Basic Memory auto-generates from `title` field (spaces → hyphens, case preserved)
+- **Best Practice**: Use lowercase-hyphenated titles for clean kebab-case filenames
+  - Good: `"authentication-flow"` → `authentication-flow.md`
+  - Acceptable: `"Authentication Flow"` → `Authentication Flow.md`
+- **Frontmatter**: Title Case acceptable in YAML `title` field, but affects filename
 - **Access**: ALL operations through MCP tools only, NEVER direct file edits
 - **Format**: Run Prettier on content before writing: `echo "$content" | npx prettier --parser markdown`
 
