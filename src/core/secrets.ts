@@ -175,11 +175,11 @@ export class SecretsManager {
   /**
    * Validate a secret (optional custom validation)
    */
-  static async validateSecret(
+  static validateSecret(
     _key: string,
     value: string,
     validateFn?: string,
-  ): Promise<boolean> {
+  ): boolean {
     // Basic validation: non-empty
     if (!value || value.trim().length === 0) {
       return false;

@@ -11,7 +11,7 @@ import { ClaudeMdManager } from "../core/claude-md.ts";
 import { ContextDirManager } from "../core/context-dir.ts";
 import { Prompts } from "../ui/prompts.ts";
 import { DefaultLifecycleContext } from "../lib/lifecycle-context.ts";
-import type { InitOptions, MCPServerModule } from "../types/index.ts";
+import type { InitOptions, MCPServerEntry, MCPServerModule } from "../types/index.ts";
 
 export class InitCommand {
   /**
@@ -78,7 +78,12 @@ export class InitCommand {
             name: s.metadata.name,
             description: s.metadata.description,
             category: s.metadata.category,
-          })) as any, // Type workaround for Prompts
+          })) as Array<{
+            id: string;
+            name: string;
+            description: string;
+            category: string;
+          }>,
         );
 
         selectedServers = selectedIds
@@ -98,7 +103,7 @@ export class InitCommand {
       const ctx = new DefaultLifecycleContext();
 
       // 7. Run lifecycle for each server
-      const mcpConfig: Record<string, any> = {};
+      const mcpConfig: Record<string, MCPServerEntry> = {};
       const installedServers: MCPServerModule[] = [];
 
       for (const server of selectedServers) {

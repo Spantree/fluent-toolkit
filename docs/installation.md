@@ -79,6 +79,7 @@ brew reinstall --HEAD spantree/fluent-toolkit/fluent-toolkit
 ```
 
 This will:
+
 - Clone the repository at the development branch
 - Compile the binary locally using Deno
 - Install the compiled binary

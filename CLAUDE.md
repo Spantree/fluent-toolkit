@@ -96,6 +96,7 @@ chore(deps): update Deno dependencies to latest
 All project documentation should be stored as Basic Memory notes, not regular markdown files:
 
 **Folder Structure**:
+
 - `features/` - Feature documentation (not prefixed with issue numbers, may span multiple issues)
 - `plans/` - Issue-specific task management with status tracking (prefixed with `issue-N-`)
 - `guides/` - How-to documentation and usage instructions
@@ -104,6 +105,7 @@ All project documentation should be stored as Basic Memory notes, not regular ma
 - `meetings/` - Meeting notes
 
 **Best Practices**:
+
 - Use `related-to: [[issue-N-description]]` to link features to implementing issues
 - Format all notes with Prettier after creation
 - Include observations and relations sections

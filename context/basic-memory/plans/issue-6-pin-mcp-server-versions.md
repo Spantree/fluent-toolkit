@@ -3,7 +3,7 @@ title: issue-6-pin-mcp-server-versions
 type: note
 permalink: plans/issue-6-pin-mcp-server-versions
 tags:
-- mcp-registry,versioning,reproducibility
+  - mcp-registry,versioning,reproducibility
 ---
 
 # Issue 6: Pin MCP Server Versions

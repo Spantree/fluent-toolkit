@@ -21,12 +21,7 @@ import {
   getInstallCommand,
 } from "./utils/command.ts";
 import { fetchLatestVersion } from "../utils/package-version.ts";
-import {
-  getServerLock,
-  readLockFile,
-  updateServerLock,
-  writeLockFile,
-} from "../utils/lockfile.ts";
+import { getServerLock, readLockFile, updateServerLock, writeLockFile } from "../utils/lockfile.ts";
 import { satisfiesConstraint } from "../utils/semver.ts";
 
 export interface DependencyRequirement {
@@ -312,7 +307,7 @@ export abstract class BaseMCPServer implements MCPServerModule {
    * Default validate implementation (optional)
    * Returns success by default - override for custom validation
    */
-  async validate(_ctx: LifecycleContext): Promise<ValidationResult> {
+  validate(_ctx: LifecycleContext): ValidationResult {
     return {
       success: true,
       message: "No validation checks defined",
@@ -333,7 +328,7 @@ export abstract class BaseMCPServer implements MCPServerModule {
   /**
    * Helper: Read CLAUDE.md content from file
    */
-  protected async readClaudeMdFile(): Promise<string> {
+  protected readClaudeMdFile(): string {
     // Get the directory where this module is defined
     // This is a bit tricky - we'll need to pass the path from the concrete class
     throw new Error("readClaudeMdFile must be implemented by concrete class");

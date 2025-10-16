@@ -7,12 +7,7 @@
 import { parse, stringify } from "@std/yaml";
 import { join } from "@std/path";
 import type { FtkLockFile, McpServerLock } from "../types/lockfile.ts";
-import {
-  createDefaultLockFile,
-  fromYaml,
-  isValidLockFile,
-  toYaml,
-} from "../types/lockfile.ts";
+import { createDefaultLockFile, fromYaml, isValidLockFile, toYaml } from "../types/lockfile.ts";
 
 /**
  * Read lock file from project directory
