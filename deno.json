@@ -1,0 +1,43 @@
+{
+  "name": "@spantree/fluent-toolkit",
+  "version": "0.1.0",
+  "exports": "./src/main.ts",
+  "tasks": {
+    "dev": "deno run --allow-all src/main.ts",
+    "compile": "deno compile --allow-all --output bin/ftk src/main.ts",
+    "compile:all": "mkdir -p dist && deno task compile:mac && deno task compile:mac-arm && deno task compile:linux",
+    "compile:mac": "deno compile --allow-all --target=x86_64-apple-darwin --output=dist/ftk-darwin-x86_64 src/main.ts",
+    "compile:mac-arm": "deno compile --allow-all --target=aarch64-apple-darwin --output=dist/ftk-darwin-arm64 src/main.ts",
+    "compile:linux": "deno compile --allow-all --target=x86_64-unknown-linux-gnu --output=dist/ftk-linux-x86_64 src/main.ts",
+    "test": "deno test --allow-all",
+    "fmt": "deno fmt",
+    "lint": "deno lint"
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "imports": {
+    "@std/path": "jsr:@std/path@^1.0.0",
+    "@std/fs": "jsr:@std/fs@^1.0.0",
+    "@std/jsonc": "jsr:@std/jsonc@^1.0.0",
+    "@cliffy/prompt": "https://deno.land/x/cliffy@v1.0.0-rc.4/prompt/mod.ts",
+    "@cliffy/command": "https://deno.land/x/cliffy@v1.0.0-rc.4/command/mod.ts",
+    "@cliffy/ansi/colors": "https://deno.land/x/cliffy@v1.0.0-rc.4/ansi/colors.ts"
+  }
+}

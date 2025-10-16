@@ -1,0 +1,41 @@
+#!/usr/bin/env -S deno run --allow-all
+
+/**
+ * Fluent Toolkit (ftk)
+ * An opinionated toolkit for agentic engineers
+ * From the Fluent Workshop - https://fluentwork.shop
+ */
+
+import { Command } from "@cliffy/command";
+import { InitCommand } from "./commands/init.ts";
+import type { InitOptions } from "./types/index.ts";
+
+const VERSION = "0.1.0";
+
+await new Command()
+  .name("ftk")
+  .version(VERSION)
+  .description(
+    "Fluent Toolkit - An opinionated toolkit for agentic engineers\n" +
+      "From the Fluent Workshop - https://fluentwork.shop"
+  )
+  .globalOption("-v, --verbose", "Enable verbose output")
+  // Init command
+  .command("init", "Initialize MCP servers for Claude Code in current project")
+  .option("-f, --force", "Force re-initialization even if already configured")
+  .option("--skip-validation", "Skip dependency validation checks")
+  .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
+  .action(async (options) => {
+    const initOptions: InitOptions = {
+      force: options.force,
+      skipValidation: options.skipValidation,
+      servers: options.servers,
+    };
+
+    await InitCommand.execute(initOptions);
+  })
+  // Default action (show help)
+  .action(function () {
+    this.showHelp();
+  })
+  .parse(Deno.args);
