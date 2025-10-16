@@ -15,7 +15,8 @@ export class Context7Server extends BaseMCPServer {
     description:
       "Up-to-date library documentation and code examples from the open source ecosystem",
     category: "core",
-    version: "1.0.0",
+    packageName: "@upstash/context7-mcp",
+    packageRegistry: "npm",
     homepage: "https://context7.ai",
     repository: "https://github.com/upstash/context7-mcp",
   };
@@ -35,8 +36,8 @@ export class Context7Server extends BaseMCPServer {
     return [];
   }
 
-  protected override generateMcpConfig(_secrets: Record<string, string>) {
-    return createNpxConfig("@upstash/context7-mcp", true, this.metadata.version);
+  protected override generateMcpConfig(_secrets: Record<string, string>, version?: string) {
+    return createNpxConfig("@upstash/context7-mcp", true, version);
   }
 
   override getClaudeMdContent(): string {

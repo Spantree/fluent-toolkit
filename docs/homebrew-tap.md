@@ -11,6 +11,7 @@ A "tap" is Homebrew's term for a repository of formulae (package definitions). I
 3. **Optional naming convention**: `homebrew-<name>` (but not required)
 
 When you run `brew tap user/repo`, Homebrew clones that repository to:
+
 ```
 $(brew --prefix)/Library/Taps/user/homebrew-repo
 ```
@@ -20,6 +21,7 @@ $(brew --prefix)/Library/Taps/user/homebrew-repo
 ### Approach 1: Formula in Main Repo (✅ Recommended)
 
 **What we've set up:**
+
 - `Formula/fluent-toolkit.rb` lives in **this repository**
 - No separate `homebrew-tap` repository needed
 - Formula updates alongside code changes
@@ -38,12 +40,14 @@ brew install spantree/fluent-toolkit/fluent-toolkit
 ```
 
 **Advantages:**
+
 - ✅ Single repository to maintain
 - ✅ Formula stays in sync with code
 - ✅ Simpler for single-tool projects
 - ✅ Version control is unified
 
 **Disadvantages:**
+
 - ⚠️ Users clone entire repo when tapping (but Homebrew uses shallow clones, so minimal impact)
 - ⚠️ Less separation if you plan to host multiple tools
 
@@ -59,6 +63,7 @@ brew install fluent-toolkit
 ```
 
 **When to use:**
+
 - You plan to distribute multiple tools from one tap
 - You want cleaner separation between source and distribution
 - You're following "official" Homebrew conventions strictly
@@ -79,11 +84,13 @@ fluent-toolkit/
 ## How Tapping Works
 
 When someone runs:
+
 ```bash
 brew tap spantree/fluent-toolkit
 ```
 
 Homebrew:
+
 1. Looks for a repo at `github.com/spantree/homebrew-fluent-toolkit` **OR** `github.com/spantree/fluent-toolkit`
 2. Clones it to `$(brew --prefix)/Library/Taps/spantree/homebrew-fluent-toolkit`
 3. Looks for formulae in the `Formula/` directory
@@ -94,12 +101,14 @@ Homebrew:
 **Tap name:** `user/repo` (the part after `brew tap`)
 
 Maps to repositories in this order:
+
 1. `github.com/user/homebrew-repo` (preferred convention)
 2. `github.com/user/repo` (works fine, what we're using)
 
 **Formula name:** Filename in `Formula/` directory (without `.rb`)
 
 Example:
+
 - File: `Formula/fluent-toolkit.rb`
 - Install with: `brew install fluent-toolkit`
 
@@ -137,12 +146,14 @@ end
 ## Installation Patterns
 
 ### Pattern 1: Tap then Install
+
 ```bash
 brew tap spantree/fluent-toolkit
 brew install fluent-toolkit
 ```
 
 ### Pattern 2: Direct Install (Combines both)
+
 ```bash
 brew install spantree/fluent-toolkit/fluent-toolkit
 #            └──────┬──────┘ └────────┬────────┘
@@ -150,6 +161,7 @@ brew install spantree/fluent-toolkit/fluent-toolkit
 ```
 
 ### Pattern 3: Direct Formula URL (No tap)
+
 ```bash
 brew install https://raw.githubusercontent.com/spantree/fluent-toolkit/main/Formula/fluent-toolkit.rb
 ```
@@ -161,11 +173,13 @@ Pattern 2 is cleanest for one-liners!
 Since the repo is private, colleagues need access via:
 
 **SSH (Recommended - no token needed):**
+
 ```bash
 brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
 ```
 
 **HTTPS with Token (Fallback):**
+
 ```bash
 export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxx
 brew tap spantree/fluent-toolkit https://github.com/spantree/fluent-toolkit
@@ -215,6 +229,7 @@ A: Homebrew uses shallow clones (`--depth=1`), so only recent commits are fetche
 
 **Q: What if I want to separate the tap later?**
 A: Easy:
+
 1. Create new `homebrew-tap` repo
 2. Copy `Formula/` directory to it
 3. Update tap instructions for colleagues
@@ -222,6 +237,7 @@ A: Easy:
 
 **Q: Can I test the formula locally before pushing?**
 A: Yes!
+
 ```bash
 # Install from local file
 brew install --build-from-source Formula/fluent-toolkit.rb

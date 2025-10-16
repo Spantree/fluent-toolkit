@@ -32,9 +32,7 @@ export class SecretsManager {
   static async loadSecrets(scope: "user" | "project" = "project"): Promise<
     Record<string, string>
   > {
-    const secretsPath = scope === "user"
-      ? this.getUserSecretsPath()
-      : this.getSecretsPath();
+    const secretsPath = scope === "user" ? this.getUserSecretsPath() : this.getSecretsPath();
 
     if (!(await exists(secretsPath))) {
       return {};
@@ -57,7 +55,9 @@ export class SecretsManager {
 
       return secrets;
     } catch (error) {
-      throw new Error(`Failed to load secrets: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to load secrets: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -67,11 +67,9 @@ export class SecretsManager {
   static async saveSecret(
     key: string,
     value: string,
-    scope: "user" | "project" = "project"
+    scope: "user" | "project" = "project",
   ): Promise<void> {
-    const secretsPath = scope === "user"
-      ? this.getUserSecretsPath()
-      : this.getSecretsPath();
+    const secretsPath = scope === "user" ? this.getUserSecretsPath() : this.getSecretsPath();
 
     // Load existing secrets
     const secrets = await this.loadSecrets(scope);
@@ -96,7 +94,7 @@ export class SecretsManager {
    */
   static async hasSecret(
     key: string,
-    scope: "user" | "project" = "project"
+    scope: "user" | "project" = "project",
   ): Promise<boolean> {
     const secrets = await this.loadSecrets(scope);
     return key in secrets;
@@ -107,7 +105,7 @@ export class SecretsManager {
    */
   static async getSecret(
     key: string,
-    scope: "user" | "project" = "project"
+    scope: "user" | "project" = "project",
   ): Promise<string | undefined> {
     const secrets = await this.loadSecrets(scope);
     return secrets[key];
@@ -117,9 +115,7 @@ export class SecretsManager {
    * Initialize secrets file if it doesn't exist
    */
   static async initSecretsFile(scope: "user" | "project" = "project"): Promise<void> {
-    const secretsPath = scope === "user"
-      ? this.getUserSecretsPath()
-      : this.getSecretsPath();
+    const secretsPath = scope === "user" ? this.getUserSecretsPath() : this.getSecretsPath();
 
     if (await exists(secretsPath)) {
       return;
@@ -159,9 +155,7 @@ export class SecretsManager {
     const lines = content.trim().split("\n");
 
     // Find or create environment section
-    const envSectionIndex = lines.findIndex((line) =>
-      line.toLowerCase().includes("environment")
-    );
+    const envSectionIndex = lines.findIndex((line) => line.toLowerCase().includes("environment"));
 
     if (envSectionIndex >= 0) {
       // Add after environment section header
@@ -184,7 +178,7 @@ export class SecretsManager {
   static async validateSecret(
     _key: string,
     value: string,
-    validateFn?: string
+    validateFn?: string,
   ): Promise<boolean> {
     // Basic validation: non-empty
     if (!value || value.trim().length === 0) {

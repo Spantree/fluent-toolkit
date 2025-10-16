@@ -46,7 +46,7 @@ export class ContextDirManager {
    */
   static async createServerContextDir(
     serverId: string,
-    customName?: string
+    customName?: string,
   ): Promise<string | null> {
     const contextPath = await this.getContextDirPath();
     if (!contextPath) return null;
@@ -75,7 +75,7 @@ export class ContextDirManager {
    */
   static async updateGitignore(
     contextDirName: string,
-    exposedFolders: string[] = []
+    exposedFolders: string[] = [],
   ): Promise<void> {
     const gitignorePath = join(Deno.cwd(), ".gitignore");
 
@@ -87,9 +87,7 @@ export class ContextDirManager {
     const lines = content.trim().split("\n");
 
     // Check if we already have context section
-    const hasContextSection = lines.some((line) =>
-      line.includes(`# ${contextDirName} directory`)
-    );
+    const hasContextSection = lines.some((line) => line.includes(`# ${contextDirName} directory`));
 
     if (!hasContextSection) {
       // Add context section
@@ -118,7 +116,7 @@ export class ContextDirManager {
         let endIndex = contextIndex + 1;
         while (
           endIndex < lines.length &&
-          lines[endIndex].startsWith(`${contextDirName}/`) ||
+            lines[endIndex].startsWith(`${contextDirName}/`) ||
           lines[endIndex].startsWith(`!${contextDirName}/`)
         ) {
           endIndex++;
@@ -146,14 +144,20 @@ export class ContextDirManager {
   /**
    * Check if any servers need a context directory
    */
-  static needsContextDir(servers: Array<{ metadata: { contextFolder?: string; exposeContextToGit?: boolean } }>): boolean {
+  static needsContextDir(
+    servers: Array<{ metadata: { contextFolder?: string; exposeContextToGit?: boolean } }>,
+  ): boolean {
     return servers.some((s) => s.metadata.contextFolder || s.metadata.exposeContextToGit);
   }
 
   /**
    * Get the list of exposed context folders from installed servers
    */
-  static getExposedFolders(servers: Array<{ metadata: { id: string; contextFolder?: string; exposeContextToGit?: boolean } }>): string[] {
+  static getExposedFolders(
+    servers: Array<
+      { metadata: { id: string; contextFolder?: string; exposeContextToGit?: boolean } }
+    >,
+  ): string[] {
     return servers
       .filter((s) => s.metadata.exposeContextToGit)
       .map((s) => s.metadata.contextFolder || s.metadata.id);

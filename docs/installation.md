@@ -47,6 +47,7 @@ ftk init
 ```
 
 This will:
+
 - Let you select which MCP servers to install
 - Configure secrets (API keys, etc.)
 - Generate `.mcp.json` for Claude Code

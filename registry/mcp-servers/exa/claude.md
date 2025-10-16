@@ -92,6 +92,7 @@ tags:
 ```
 
 **Workflow**:
+
 1. Start research: `deep_researcher_start(instructions, model)`
 2. Poll until complete: `deep_researcher_check(taskId)` every 5s
 3. **IMMEDIATELY** cache full response in Basic Memory `research/` folder

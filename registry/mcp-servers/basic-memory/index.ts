@@ -108,11 +108,12 @@ export class BasicMemoryServer extends BaseMCPServer {
     }
   }
 
-  protected override generateMcpConfig(_secrets: Record<string, string>) {
+  protected override generateMcpConfig(_secrets: Record<string, string>, _version?: string) {
     // Get the project name from the current directory
     const cwd = Deno.cwd();
     const projectName = cwd.split("/").pop() || "fluent-toolkit";
 
+    // Basic Memory uses custom command, version parameter ignored
     return {
       command: "uvx",
       args: [

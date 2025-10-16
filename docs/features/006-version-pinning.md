@@ -7,6 +7,7 @@ Add version pinning support to ensure reproducible MCP server installations acro
 ## Implementation Plan
 
 ### Phase 1: Version Syntax
+
 - [ ] Define version pinning syntax for registry entries
   - npm packages: `@packagename@version`
   - Python packages: `packagename==version`
@@ -14,16 +15,19 @@ Add version pinning support to ensure reproducible MCP server installations acro
 - [ ] Add version validation logic
 
 ### Phase 2: Registry Updates
+
 - [ ] Add `version` field to existing server definitions
 - [ ] Document recommended versions for each server
 - [ ] Add version compatibility notes
 
 ### Phase 3: Install Command
+
 - [ ] Update install logic to respect pinned versions
 - [ ] Handle version conflicts and warnings
 - [ ] Support version override flag for testing
 
 ### Phase 4: Documentation
+
 - [ ] Document version pinning in CLAUDE.md
 - [ ] Add version upgrade guide
 - [ ] Include troubleshooting for version conflicts
@@ -89,11 +93,13 @@ function resolvePackageVersion(packageName: string, version?: string): string {
 ## Impact Analysis
 
 **Benefits:**
+
 - Reproducible installations across environments
 - Predictable behavior for users
 - Easier troubleshooting with known versions
 
 **Risks:**
+
 - Users may miss important updates
 - Version conflicts with dependencies
 - Additional maintenance burden

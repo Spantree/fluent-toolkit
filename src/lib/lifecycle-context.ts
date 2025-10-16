@@ -20,7 +20,7 @@ export class DefaultLifecycleContext implements LifecycleContext {
 
   async promptSelect<T extends string>(
     message: string,
-    options: Array<{ value: T; name: string }>
+    options: Array<{ value: T; name: string }>,
   ): Promise<T> {
     return await Prompts.select(message, options);
   }
@@ -70,7 +70,7 @@ export class DefaultLifecycleContext implements LifecycleContext {
 
   async runCommand(
     command: string,
-    args: string[]
+    args: string[],
   ): Promise<{ success: boolean; output: string }> {
     return await runCommand(command, args);
   }

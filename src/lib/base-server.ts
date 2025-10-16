@@ -3,7 +3,6 @@
  * Provides common patterns and default implementations
  */
 
-// Removed unused import
 import type {
   ConfigureResult,
   InstallResult,
@@ -13,7 +12,14 @@ import type {
   ServerMetadata,
   ValidationResult,
 } from "../types/lifecycle.ts";
-import { commandExists, compareVersions, getCommandVersion, getInstallCommand } from "./utils/command.ts";
+import type { MCPServerEntry } from "../types/index.ts";
+import {
+  commandExists,
+  compareVersions,
+  getCommandVersion,
+  getInstallCommand,
+} from "./utils/command.ts";
+import { fetchLatestVersion } from "../utils/package-version.ts";
 
 export interface DependencyRequirement {
   command: string;
@@ -30,6 +36,44 @@ export interface SecretRequirement {
 
 export abstract class BaseMCPServer implements MCPServerModule {
   abstract metadata: ServerMetadata;
+
+  /**
+   * Resolve the version to use for this server
+   * Returns the hardcoded metadata.version, or queries the registry for latest
+   */
+  async resolveVersion(): Promise<string | undefined> {
+    // If version is explicitly set in metadata, use it
+    if (this.metadata.version && this.metadata.version !== "latest") {
+      return this.metadata.version;
+    }
+
+    // If package registry info is available, fetch latest version
+    if (this.metadata.packageName && this.metadata.packageRegistry) {
+      try {
+        const versionInfo = await fetchLatestVersion(
+          this.metadata.packageName,
+          this.metadata.packageRegistry,
+        );
+
+        if (versionInfo.latestVersion) {
+          return versionInfo.latestVersion;
+        }
+
+        // If fetch failed, log warning and fall back to undefined (latest)
+        console.warn(
+          `Failed to fetch latest version for ${this.metadata.packageName}: ${versionInfo.error}`,
+        );
+      } catch (error) {
+        console.warn(
+          `Error resolving version for ${this.metadata.name}:`,
+          error,
+        );
+      }
+    }
+
+    // Fall back to undefined (let package manager use latest)
+    return undefined;
+  }
 
   /**
    * Override to specify system dependencies
@@ -53,10 +97,13 @@ export abstract class BaseMCPServer implements MCPServerModule {
 
   /**
    * Override to provide custom MCP config generation
+   * @param secrets - Configured secrets (usually empty as they're in .env.mcp.secrets)
+   * @param version - Resolved version to use (from resolveVersion())
    */
   protected abstract generateMcpConfig(
-    secrets: Record<string, string>
-  ): { command: string; args?: string[]; env?: Record<string, string> };
+    secrets: Record<string, string>,
+    version?: string,
+  ): MCPServerEntry;
 
   /**
    * Default precheck implementation
@@ -158,10 +205,17 @@ export abstract class BaseMCPServer implements MCPServerModule {
    * Default install implementation
    * Generates MCP config using generateMcpConfig()
    */
-  async install(_ctx: LifecycleContext): Promise<InstallResult> {
+  async install(ctx: LifecycleContext): Promise<InstallResult> {
     try {
+      // Resolve version before generating config
+      const resolvedVersion = await this.resolveVersion();
+
+      if (resolvedVersion && resolvedVersion !== this.metadata.version) {
+        ctx.info(`Using latest version: ${resolvedVersion}`);
+      }
+
       const secrets = {}; // Secrets are already saved by this point
-      const mcpConfig = this.generateMcpConfig(secrets);
+      const mcpConfig = this.generateMcpConfig(secrets, resolvedVersion);
 
       return {
         success: true,
@@ -171,7 +225,9 @@ export abstract class BaseMCPServer implements MCPServerModule {
     } catch (error) {
       return {
         success: false,
-        message: `Failed to generate configuration: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Failed to generate configuration: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       };
     }
   }

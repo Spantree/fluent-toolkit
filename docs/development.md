@@ -49,16 +49,19 @@ fluent-toolkit/
 ## Development Commands
 
 ### Run in development mode
+
 ```bash
 deno task dev
 ```
 
 ### Run ftk init
+
 ```bash
 deno task dev init
 ```
 
 ### Run with options
+
 ```bash
 deno task dev init --help
 deno task dev init --force
@@ -67,6 +70,7 @@ deno task dev init --servers sequential-thinking,context7
 ```
 
 ### Compile binary
+
 ```bash
 deno task compile
 ```
@@ -74,11 +78,13 @@ deno task compile
 This creates `bin/ftk` executable.
 
 ### Format code
+
 ```bash
 deno task fmt
 ```
 
 ### Lint code
+
 ```bash
 deno task lint
 ```
@@ -88,12 +94,14 @@ deno task lint
 ### Test with a fresh project
 
 1. Create a new test directory:
+
 ```bash
 mkdir ~/test-ftk-project
 cd ~/test-ftk-project
 ```
 
 2. Run ftk init:
+
 ```bash
 cd ~/src/spantree-fluent/fluent-toolkit
 deno task dev init
@@ -102,6 +110,7 @@ deno task dev init
 3. Follow the interactive prompts to select servers and provide API keys
 
 4. Verify the generated files:
+
 ```bash
 ls -la ~/test-ftk-project
 cat ~/test-ftk-project/.mcp.json
@@ -111,6 +120,7 @@ cat ~/test-ftk-project/.ftk/config.json
 ```
 
 5. Start Claude Code and verify MCP servers load:
+
 ```bash
 cd ~/test-ftk-project
 claude
@@ -131,10 +141,12 @@ The server registry (`registry/servers.json`) contains metadata for all availabl
 ### Configuration Strategy
 
 **Dual-layer configuration**:
+
 - User-level: `~/.ftk/config.json` (global preferences)
 - Project-level: `.ftk/config.json` (project-specific)
 
 **MCP configuration**:
+
 - `.mcp.json` in project root
 - Uses dotenv-cli wrapper for servers requiring secrets
 
@@ -150,8 +162,11 @@ Uses marker-based inline content approach (validated in test project):
 
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 ## MCP Servers Configuration
+
 ...
+
 <!-- ftk:end:mcp-overview -->
 ```
 
@@ -160,6 +175,7 @@ This allows ftk to manage specific sections without clobbering user content.
 ## Next Steps
 
 ### Phase 2 (Enhancement)
+
 - [ ] `ftk doctor` command for diagnostics
 - [ ] Advanced validation with custom validators
 - [ ] Installation assistance (auto-run install commands)
@@ -167,16 +183,19 @@ This allows ftk to manage specific sections without clobbering user content.
 - [ ] Progress indicators for long operations
 
 ### Phase 3 (Extensibility)
+
 - [ ] `ftk update-registry` command (git sparse checkout)
 - [ ] Registry version compatibility checking
 - [ ] Custom server definitions (local registry)
 
 ### Phase 4 (Plugin Generation)
+
 - [ ] `ftk plugin create` command
 - [ ] Bundle MCP servers + slash commands + hooks
 - [ ] `ftk plugin publish` for marketplace
 
 ### Phase 5 (Agent SDK Integration)
+
 - [ ] `ftk agent create` command
 - [ ] Agent loop templates
 - [ ] Deep Researcher agent

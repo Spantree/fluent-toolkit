@@ -14,7 +14,8 @@ export class SequentialThinkingServer extends BaseMCPServer {
     name: "Sequential Thinking",
     description: "Enhanced reasoning for complex multi-step problems and systematic analysis",
     category: "core",
-    version: "1.0.0",
+    packageName: "@modelcontextprotocol/server-sequential-thinking",
+    packageRegistry: "npm",
     repository: "https://github.com/modelcontextprotocol/servers",
   };
 
@@ -32,11 +33,11 @@ export class SequentialThinkingServer extends BaseMCPServer {
     return []; // No secrets required
   }
 
-  protected override generateMcpConfig(_secrets: Record<string, string>) {
+  protected override generateMcpConfig(_secrets: Record<string, string>, version?: string) {
     return createNpxConfig(
       "@modelcontextprotocol/server-sequential-thinking",
       true,
-      this.metadata.version,
+      version,
     );
   }
 

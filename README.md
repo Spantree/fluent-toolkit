@@ -26,6 +26,7 @@ ftk init
 ```
 
 The interactive wizard will:
+
 - Let you select which MCP servers to install
 - Check for required system dependencies
 - Prompt for API keys and secrets
@@ -47,11 +48,13 @@ The interactive wizard will:
 ### Available MCP Servers
 
 **Core Servers:**
+
 - **Sequential Thinking** - Enhanced reasoning for complex problems
 - **Context7** - Up-to-date library documentation and code examples
 - **Basic Memory** - Persistent memory and note-taking across sessions
 
 **Optional Servers:**
+
 - **Exa** - Web search and research (requires API key)
 
 More servers coming soon!

@@ -18,6 +18,10 @@ export interface ServerMetadata {
   // Context directory settings
   contextFolder?: string; // Subfolder name in context dir (defaults to id)
   exposeContextToGit?: boolean; // Whether to expose this server's context folder to git
+
+  // Package registry information (for dynamic version resolution)
+  packageName?: string; // Package name in npm/PyPI (if different from id)
+  packageRegistry?: "npm" | "pypi"; // Which registry to query for latest version
 }
 
 // Lifecycle Results
@@ -55,7 +59,10 @@ export interface LifecycleContext {
   // Prompts
   promptForSecret(name: string, message: string): Promise<string>;
   promptConfirm(message: string, defaultValue?: boolean): Promise<boolean>;
-  promptSelect<T extends string>(message: string, options: Array<{ value: T; name: string }>): Promise<T>;
+  promptSelect<T extends string>(
+    message: string,
+    options: Array<{ value: T; name: string }>,
+  ): Promise<T>;
 
   // Output
   info(message: string): void;

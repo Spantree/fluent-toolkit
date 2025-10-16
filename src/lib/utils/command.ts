@@ -18,7 +18,7 @@ export async function commandExists(command: string): Promise<boolean> {
 
 export async function getCommandVersion(
   command: string,
-  versionArg = "--version"
+  versionArg = "--version",
 ): Promise<string | null> {
   try {
     const process = new Deno.Command(command, {
@@ -40,7 +40,7 @@ export async function getCommandVersion(
 
 export async function runCommand(
   command: string,
-  args: string[]
+  args: string[],
 ): Promise<{ success: boolean; output: string }> {
   try {
     const process = new Deno.Command(command, {

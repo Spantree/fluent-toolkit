@@ -5,10 +5,12 @@
 ### Configuration Architecture
 
 **Dual-Layer Configuration:**
+
 - **User-level**: `~/.ftk/config.json` - Global preferences, user-scoped MCP servers
 - **Project-level**: `.ftk/config.json` - Project-specific overrides and server selections
 
 **User-scope Inheritance:**
+
 - Check if MCP server already configured at user level (`~/.config/claude/mcp.json`)
 - Prompt user: inherit user config or create project-specific override?
 
@@ -17,31 +19,32 @@
 **Storage**: Hard-coded TypeScript/JSON in binary (extensible for future plugins)
 
 **Server Metadata Schema:**
+
 ```typescript
 interface MCPServer {
-  id: string;                           // e.g., "sequential-thinking"
-  name: string;                         // e.g., "Sequential Thinking"
+  id: string; // e.g., "sequential-thinking"
+  name: string; // e.g., "Sequential Thinking"
   description: string;
   category: "core" | "optional";
 
   // Installation
   installMethod: "npm" | "uvx" | "git" | "binary";
-  packageName?: string;                 // npm package or uvx module
-  gitRepo?: string;                     // for git-based installs
+  packageName?: string; // npm package or uvx module
+  gitRepo?: string; // for git-based installs
 
   // Dependencies
   systemDependencies: {
     runtime?: "node" | "python" | "uv" | "docker";
     minVersion?: string;
-    validateFn?: string;                // Optional validation code (requires user permission)
+    validateFn?: string; // Optional validation code (requires user permission)
   }[];
 
   // Environment & Secrets
   requiredEnvVars: {
-    name: string;                       // e.g., "EXA_API_KEY"
-    prompt: string;                     // User-friendly prompt
-    validateFn?: string;                // Optional validation (e.g., test API call)
-    scope?: "user" | "project";         // Default: "project"
+    name: string; // e.g., "EXA_API_KEY"
+    prompt: string; // User-friendly prompt
+    validateFn?: string; // Optional validation (e.g., test API call)
+    scope?: "user" | "project"; // Default: "project"
   }[];
 
   // Configuration
@@ -52,7 +55,7 @@ interface MCPServer {
   };
 
   // Documentation
-  docsTemplate?: string;                // CLAUDE.md section template
+  docsTemplate?: string; // CLAUDE.md section template
   usageExamples?: string[];
 }
 ```
@@ -60,10 +63,12 @@ interface MCPServer {
 ### Secrets Management
 
 **File Structure:**
+
 - `.env.mcp.secrets` - Project-scoped secrets (gitignored)
 - `~/.ftk/secrets.env` - User-scoped secrets (optional, for shared API keys)
 
 **dotenv-cli Integration:**
+
 - Managed via `npx dotenv-cli`
 - Wrap MCP server commands in `.mcp.json`:
   ```json
@@ -91,6 +96,7 @@ interface MCPServer {
 **Strategy**: Hybrid approach with inline content + @ references
 
 **File Structure:**
+
 ```
 project/
   CLAUDE.md                    # Project conventions + @.ftk/CLAUDE.md reference
@@ -102,6 +108,7 @@ project/
 ```
 
 **Root CLAUDE.md** (user-editable):
+
 ```markdown
 # Project Documentation
 
@@ -110,33 +117,42 @@ Your project-specific conventions and guidelines
 </system_context>
 
 # MCP Server Configuration
+
 @.ftk/CLAUDE.md
 ```
 
 **.ftk/CLAUDE.md** (ftk-managed with markers):
+
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 ## MCP Servers Configuration
 
 This project uses the following MCP servers:
 
 ### Sequential Thinking
+
 Enhanced reasoning for complex multi-step problems.
 
 **Usage**: Available automatically in all Claude Code sessions.
 
 ### Exa Research
+
 Powerful web search and research capabilities.
 
 **Usage**: Request web searches or research tasks.
+
 <!-- ftk:end:mcp-overview -->
 
 <!-- ftk:begin:extended-docs -->
+
 @.ftk/docs/workflows.md
+
 <!-- ftk:end:extended-docs -->
 ```
 
 **Update Behavior:**
+
 - Only modify content between markers in `.ftk/CLAUDE.md`
 - Never modify root `CLAUDE.md` directly
 - If `.ftk/CLAUDE.md` doesn't exist, create it
@@ -146,15 +162,18 @@ Powerful web search and research capabilities.
 ### Dependency Validation
 
 **Permission Model:**
+
 - Start wizard by asking: "ftk needs to run validation checks. Allow? (Y/n)"
 - If declined, skip optional validations, only check command existence
 
 **Validation Levels:**
+
 1. **Basic**: Check if command exists in PATH (`which uv`)
 2. **Version** (optional): Run `--version` and parse
 3. **Custom** (optional, requires permission): Run server-defined validation code
 
 **Installation Assistance:**
+
 - Detect missing dependencies
 - Show installation command (e.g., `brew install uv`)
 - Ask: "Run this command? (y/N)"
@@ -163,12 +182,14 @@ Powerful web search and research capabilities.
 ### Versioning Strategy
 
 **Binary Versioning:**
+
 - `MAJOR.MINOR.PATCH` (standard semantic versioning)
 - MAJOR: Breaking changes
 - MINOR: New features (backward compatible)
 - PATCH: Bug fixes
 
 **Registry Versioning** (independent):
+
 - Server registry has own version in `registry/servers.json`
 - Updated via git sparse checkout (no binary update needed)
 - Binary declares compatible registry version range
@@ -176,6 +197,7 @@ Powerful web search and research capabilities.
 **Update Paths:**
 
 **Binary Updates:**
+
 ```bash
 ftk upgrade
   → runs `brew upgrade ftk`
@@ -183,6 +205,7 @@ ftk upgrade
 ```
 
 **Registry Updates** (without binary update):
+
 ```bash
 ftk update-registry
   → Pulls latest from ~/.ftk/registry (git sparse checkout)
@@ -191,6 +214,7 @@ ftk update-registry
 ```
 
 **Registry Storage:**
+
 ```bash
 # Initial setup (during ftk install)
 git clone --filter=blob:none --sparse \
@@ -205,6 +229,7 @@ cd ~/.ftk/registry && git pull
 ```
 
 **Version Compatibility:**
+
 ```json
 // In binary
 {
@@ -222,6 +247,7 @@ cd ~/.ftk/registry && git pull
 ### Platform Support
 
 **Phase 1**: macOS only
+
 - Distribution: Homebrew
 - Binary: Deno compile → single executable
 
@@ -272,79 +298,84 @@ fluent-toolkit/
 ### Core Modules
 
 #### 1. Registry (`src/core/registry.ts`)
+
 ```typescript
 export class ServerRegistry {
-  static getAll(): MCPServer[]
-  static getById(id: string): MCPServer | undefined
-  static getCore(): MCPServer[]
-  static getOptional(): MCPServer[]
-  static getByCategory(category: string): MCPServer[]
+  static getAll(): MCPServer[];
+  static getById(id: string): MCPServer | undefined;
+  static getCore(): MCPServer[];
+  static getOptional(): MCPServer[];
+  static getByCategory(category: string): MCPServer[];
 }
 ```
 
 #### 2. Config Manager (`src/core/config.ts`)
+
 ```typescript
 export class ConfigManager {
   // User-level config
-  static getUserConfig(): UserConfig
-  static saveUserConfig(config: UserConfig): void
+  static getUserConfig(): UserConfig;
+  static saveUserConfig(config: UserConfig): void;
 
   // Project-level config
-  static getProjectConfig(): ProjectConfig
-  static saveProjectConfig(config: ProjectConfig): void
+  static getProjectConfig(): ProjectConfig;
+  static saveProjectConfig(config: ProjectConfig): void;
 
   // MCP config (.mcp.json)
-  static getMCPConfig(): MCPConfig
-  static updateMCPConfig(serverConfig: ServerConfig): void
+  static getMCPConfig(): MCPConfig;
+  static updateMCPConfig(serverConfig: ServerConfig): void;
 
   // Check inheritance
-  static isServerInUserScope(serverId: string): boolean
+  static isServerInUserScope(serverId: string): boolean;
 }
 ```
 
 #### 3. Dependency Validator (`src/core/dependencies.ts`)
+
 ```typescript
 export class DependencyValidator {
   static async checkRuntime(
     runtime: string,
-    minVersion?: string
-  ): Promise<ValidationResult>
+    minVersion?: string,
+  ): Promise<ValidationResult>;
 
   static async runCustomValidation(
     validationCode: string,
-    withPermission: boolean
-  ): Promise<ValidationResult>
+    withPermission: boolean,
+  ): Promise<ValidationResult>;
 
-  static suggestInstallCommand(dependency: string): string
+  static suggestInstallCommand(dependency: string): string;
 }
 ```
 
 #### 4. Secrets Manager (`src/core/secrets.ts`)
+
 ```typescript
 export class SecretsManager {
-  static async loadSecrets(): Promise<Record<string, string>>
-  static async saveSecret(key: string, value: string, scope?: 'user' | 'project'): void
-  static async validateSecret(key: string, validationFn?: string): Promise<boolean>
-  static ensureGitignore(): void
+  static async loadSecrets(): Promise<Record<string, string>>;
+  static async saveSecret(key: string, value: string, scope?: "user" | "project"): void;
+  static async validateSecret(key: string, validationFn?: string): Promise<boolean>;
+  static ensureGitignore(): void;
 }
 ```
 
 #### 5. CLAUDE.md Manager (`src/core/claude-md.ts`)
+
 ```typescript
 export class ClaudeMdManager {
-  static async exists(): Promise<boolean>
-  static async read(): Promise<string>
+  static async exists(): Promise<boolean>;
+  static async read(): Promise<string>;
 
   static async upsertSection(
     sectionId: string,
-    content: string
-  ): Promise<void>
+    content: string,
+  ): Promise<void>;
 
-  static async removeSection(sectionId: string): Promise<void>
+  static async removeSection(sectionId: string): Promise<void>;
 
   static async getSectionBounds(
-    sectionId: string
-  ): Promise<{ start: number; end: number } | null>
+    sectionId: string,
+  ): Promise<{ start: number; end: number } | null>;
 }
 ```
 
@@ -418,6 +449,7 @@ export class ClaudeMdManager {
 ## Data Models
 
 ### User Config (`~/.ftk/config.json`)
+
 ```json
 {
   "version": "1.0.0",
@@ -426,13 +458,14 @@ export class ClaudeMdManager {
     "autoInstallDeps": false
   },
   "servers": {
-    "sequential-thinking": { /* user-scoped config */ },
-    "exa": { /* user-scoped config */ }
+    "sequential-thinking": {/* user-scoped config */},
+    "exa": {/* user-scoped config */}
   }
 }
 ```
 
 ### Project Config (`.ftk/config.json`)
+
 ```json
 {
   "version": "1.0.0",
@@ -444,13 +477,14 @@ export class ClaudeMdManager {
     },
     "exa": {
       "source": "project",
-      "config": { /* project-specific */ }
+      "config": {/* project-specific */}
     }
   }
 }
 ```
 
 ### Environment File (`.env.mcp.secrets`)
+
 ```bash
 # Generated by ftk - DO NOT COMMIT
 # MCP Server Secrets
@@ -463,6 +497,7 @@ NOTION_API_KEY=your_key_here
 ## Implementation Phases
 
 ### Phase 1: MVP (Core Functionality)
+
 - [ ] Server registry with core servers
 - [ ] Basic dependency checking
 - [ ] `ftk init` command
@@ -471,6 +506,7 @@ NOTION_API_KEY=your_key_here
 - [ ] Basic CLAUDE.md augmentation
 
 ### Phase 2: Enhancement
+
 - [ ] `ftk doctor` command
 - [ ] Advanced validation
 - [ ] Installation assistance
@@ -478,12 +514,14 @@ NOTION_API_KEY=your_key_here
 - [ ] Progress indicators
 
 ### Phase 3: Extensibility
+
 - [ ] Declarative config support
 - [ ] `ftk update-registry` command (git sparse checkout)
 - [ ] Registry version compatibility checking
 - [ ] Custom server definitions (local registry)
 
 ### Phase 4: Plugin Generation (Future)
+
 - [ ] `ftk plugin create` - Generate `.claude-plugin/` structure
 - [ ] Bundle MCP servers + slash commands + hooks
 - [ ] `ftk plugin publish` - Publish to marketplace
@@ -491,6 +529,7 @@ NOTION_API_KEY=your_key_here
 - [ ] Plugin versioning and dependencies
 
 ### Phase 5: Agent SDK Integration (Future)
+
 - [ ] `ftk agent create` - Scaffold Claude Agent SDK project
 - [ ] Agent loop templates (gather → act → verify)
 - [ ] Package agents as plugins
@@ -501,25 +540,33 @@ NOTION_API_KEY=your_key_here
 ## Resolved Design Questions
 
 ### ~~1. CLAUDE.md file references~~
+
 **RESOLVED**: Markdown links are NOT followed. Use:
+
 - Inline content with markers in `.ftk/CLAUDE.md`
 - `@.ftk/CLAUDE.md` reference in root `CLAUDE.md`
 - `@` syntax for additional docs (e.g., `@.ftk/docs/workflows.md`)
 
 ### ~~2. Validation security~~
+
 **RESOLVED**: Show code + confirm (user approval required).
+
 - Display validation code to user
 - Ask permission before execution
 - Store preference for session
 
 ### ~~3. Registry updates between releases~~
+
 **RESOLVED**: Use git sparse checkout to `~/.ftk/registry`.
+
 - Independent versioning for registry
 - `ftk update-registry` command
 - No binary update needed for registry changes
 
 ### ~~4. Subagent architecture~~
+
 **RESOLVED**: Use Claude Agent SDK + package as plugins.
+
 - Build agents with official Claude Agent SDK
 - Package as Claude Code plugins
 - Distribute via plugin marketplaces
@@ -528,16 +575,19 @@ NOTION_API_KEY=your_key_here
 ## Open Questions
 
 ### 1. Plugin Marketplace Strategy
+
 - Should ftk create its own marketplace or contribute to existing ones?
 - What's the governance model for Fluent Workshop marketplace?
 - How to handle plugin versioning and dependencies?
 
 ### 2. Agent SDK Scaffolding
+
 - What templates should `ftk agent create` provide?
 - How deep should ftk integrate with Agent SDK?
 - Should ftk manage agent dependencies separately?
 
 ### 3. Multi-Framework Support
+
 - Should ftk support other agent frameworks beyond Claude Agent SDK?
 - OpenAI Assistants API? LangChain? Others?
 

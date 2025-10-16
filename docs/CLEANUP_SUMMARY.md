@@ -5,6 +5,7 @@ Documentation reorganization completed on October 15, 2025.
 ## Files Moved to `docs/`
 
 ### Core Documentation
+
 - `DISTRIBUTION.md` → `docs/distribution.md`
 - `QUICK_START_DISTRIBUTION.md` → `docs/quickstart.md`
 - `HOMEBREW_TAP_GUIDE.md` → `docs/homebrew-tap.md`
@@ -13,6 +14,7 @@ Documentation reorganization completed on October 15, 2025.
 - `DEVELOPMENT.md` → `docs/development.md`
 
 ### Historical Documents (Archived)
+
 - `DESIGN.md` → `docs/archive/design.md`
 - `REFACTOR_SUMMARY.md` → `docs/archive/refactoring.md`
 - `RESEARCH_FINDINGS.md` → `docs/archive/research.md`
@@ -20,10 +22,12 @@ Documentation reorganization completed on October 15, 2025.
 ## Files Removed
 
 ### Redundant Directories
+
 - `homebrew/` - Empty after moving formula to `Formula/`
 - `templates/` - Legacy handlebars templates no longer used
 
 ### Legacy Files
+
 - `registry/servers.json` - Replaced by modular server architecture
 
 ## Final Project Structure
@@ -73,12 +77,14 @@ fluent-toolkit/
 ## Updated References
 
 All internal documentation links have been updated to reflect new paths:
+
 - `Formula/README.md` → Updated link to `docs/homebrew-tap.md`
 - `docs/quickstart.md` → Updated link to `docs/homebrew-tap.md`
 
 ## Next Steps
 
 When creating new documentation:
+
 1. Add markdown files to `docs/`
 2. Update `docs/README.md` with links
 3. Keep project root clean - no loose documentation files
