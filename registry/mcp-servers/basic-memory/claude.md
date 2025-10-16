@@ -3,7 +3,7 @@
 **Purpose**: Persistent knowledge graph for Claude Code sessions. Stores notes with relationships, observations, and metadata.
 
 **File Conventions** (CRITICAL):
-- **Titles**: kebab-case filenames (e.g., `oracle-health-integration`)
+- **Titles**: kebab-case filenames (e.g., `authentication-flow`, `api-design-patterns`)
 - **Frontmatter**: Title Case in YAML `title` field
 - **Access**: ALL operations through MCP tools only, NEVER direct file edits
 - **Format**: Run Prettier on content before writing: `echo "$content" | npx prettier --parser markdown`
@@ -38,3 +38,9 @@ meetings/         # Transcripts (YYYY-MM-DDTHH-MM-SS_topic.md)
 5. Format with Prettier before writing
 
 **Tags**: lowercase-hyphenated, avoid qualifiers ("comprehensive", "complete")
+
+**Integration with Other MCPs**:
+- Use Sequential (if installed) for systematic synthesis after documenting research
+- Use Exa (if installed) for gathering information, then document findings here
+- Use Context7 (if installed) for official docs, then capture key patterns in notes
+- Use Firecrawl (if installed) for web content, then store insights with source attribution
