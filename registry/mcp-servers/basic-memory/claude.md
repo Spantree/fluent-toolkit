@@ -10,12 +10,43 @@
 
 **Folder Structure**:
 ```
-guides/           # How-to documentation
-plans/            # Multi-step research with task checklists
-notes/            # Project-specific docs
-technologies/     # Technical documentation
-meetings/         # Transcripts (YYYY-MM-DDTHH-MM-SS_topic.md)
+guides/           # How-to documentation and usage instructions
+plans/            # Complex multi-phase task management with status tracking
+notes/            # Project-specific documentation
+technologies/     # Technical documentation and architecture
+meetings/         # Meeting transcripts (YYYY-MM-DDTHH-MM-SS_topic.md)
 ```
+
+**Plan Files** (`plans/` folder):
+Multi-phase task tracking with status indicators and detailed work items:
+```markdown
+---
+kind: Plan
+created_at: 2025-01-15T10:30:00.000Z
+status: active  # draft | active | complete
+---
+
+# Plan
+
+## ✅ COMPLETED — Phase 1 Name
+- [x] Completed task with details
+- [x] Another completed task
+
+## ⏳ IN PROGRESS — Phase 2 Name
+- [x] Completed subtask
+- [ ] Current work item with context
+- [ ] Upcoming task
+
+## 📌 BACKLOG — Phase 3 Name
+- [ ] Future work item
+- [ ] Another upcoming task
+```
+
+**Plan Management** (use with Sequential if installed):
+- Use Sequential to break down complex objectives into phases
+- Update plan status as work progresses (📌 BACKLOG → ⏳ IN PROGRESS → ✅ COMPLETED)
+- Edit notes to check off tasks `[x]` and add discovered work items
+- Plans track multi-session objectives, not single-session todos
 
 **Required Metadata** (append to all notes):
 ```markdown

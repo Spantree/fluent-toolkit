@@ -29,4 +29,6 @@ Systematically synthesize findings from these research notes into a coherent ana
 - Use Context7 (if installed) first for official docs, then Sequential for architectural analysis
 - Use Exa (if installed) to gather information, then Sequential to synthesize findings
 - Use Basic Memory (if installed) to document Sequential's analysis for future reference
+  - Create plan files in `plans/` folder to track multi-phase work
+  - Use Sequential to break down objectives into phased tasks with status tracking
 - Use Firecrawl (if installed) to fetch content, then Sequential to analyze patterns
