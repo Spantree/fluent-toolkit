@@ -15,11 +15,10 @@
 - Simple factual lookups
 - Exact documentation URL known (use Context7 or Firecrawl if available)
 
-**Tool Selection**:
-- **Context7** (if installed): Official docs, API refs - use FIRST for technical specs
-- **Exa**: Semantic research, business intelligence, comprehensive analysis
-- **Firecrawl** (if installed): Simple page fetching, multi-page crawling, site mapping
-- **Exa vs Firecrawl**: Exa for semantic understanding, Firecrawl for structured scraping
+**Tool Selection** (competing tools only):
+- **Context7** (if available): Official docs, API refs - use FIRST for technical specs
+- **Exa**: Semantic research, business intelligence, comprehensive analysis when Context7 lacks coverage
+- **Firecrawl** (if available): Simple page fetching when semantic analysis not needed; Exa for semantic understanding vs Firecrawl for structured scraping
 
 **Available Tools**:
 - `web_search_exa` - Semantic web search (understands intent and context)
@@ -46,7 +45,7 @@ Look up code examples for OAuth 2.0 implementation with Express.js
 **Note**: Requires an API key from https://exa.ai
 
 **Integration with Other MCPs**:
-- Check Context7 (if installed) FIRST for official docs, then use Exa for broader research
-- Use Sequential (if installed) to synthesize Exa research findings systematically
-- Use Basic Memory (if installed) to document research with source attribution
-- Use Firecrawl (if installed) for simple page fetching; use Exa for semantic analysis
+- Context7 (if available): Check FIRST for official docs, then use Exa for broader research
+- Firecrawl (if available): For simple page fetching when semantic analysis not needed
+- Sequential: Synthesize Exa research findings systematically
+- Basic Memory: Document research with source attribution

@@ -71,7 +71,7 @@ status: active  # draft | active | complete
 **Tags**: lowercase-hyphenated, avoid qualifiers ("comprehensive", "complete")
 
 **Integration with Other MCPs**:
-- Use Sequential (if installed) for systematic synthesis after documenting research
-- Use Exa (if installed) for gathering information, then document findings here
-- Use Context7 (if installed) for official docs, then capture key patterns in notes
-- Use Firecrawl (if installed) for web content, then store insights with source attribution
+- Sequential: Systematic synthesis after documenting research
+- Exa: Gather information, then document findings here
+- Context7: Capture key patterns from official docs in notes
+- Firecrawl: Store web content insights with source attribution

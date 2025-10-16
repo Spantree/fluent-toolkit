@@ -12,7 +12,7 @@
 **When NOT to Use**:
 - Simple, straightforward questions
 - Quick information lookups (use Context7 or Exa if available)
-- Information already documented in Basic Memory (if installed)
+- Information already documented in Basic Memory
 
 **Usage**: Claude Code automatically uses Sequential when problems require multi-step reasoning. You can explicitly request it:
 
@@ -26,9 +26,9 @@ Systematically synthesize findings from these research notes into a coherent ana
 ```
 
 **Integration with Other MCPs**:
-- Use Context7 (if installed) first for official docs, then Sequential for architectural analysis
-- Use Exa (if installed) to gather information, then Sequential to synthesize findings
-- Use Basic Memory (if installed) to document Sequential's analysis for future reference
+- Context7 (if available): Use official docs first, then Sequential for architectural analysis
+- Exa (if available): Gather information first, then Sequential to synthesize findings
+- Basic Memory: Document Sequential's analysis for future reference
   - Create plan files in `plans/` folder to track multi-phase work
-  - Use Sequential to break down objectives into phased tasks with status tracking
-- Use Firecrawl (if installed) to fetch content, then Sequential to analyze patterns
+  - Break down objectives into phased tasks with status tracking
+- Firecrawl: Fetch content, then Sequential to analyze patterns
