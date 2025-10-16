@@ -5,7 +5,11 @@
 import { join } from "@std/path";
 import { BaseMCPServer } from "../../../src/lib/base-server.ts";
 import type { DependencyRequirement, SecretRequirement } from "../../../src/lib/base-server.ts";
-import type { ServerMetadata, LifecycleContext, ConfigureResult } from "../../../src/types/lifecycle.ts";
+import type {
+  ConfigureResult,
+  LifecycleContext,
+  ServerMetadata,
+} from "../../../src/types/lifecycle.ts";
 
 export class BasicMemoryServer extends BaseMCPServer {
   override metadata: ServerMetadata = {
@@ -97,7 +101,9 @@ export class BasicMemoryServer extends BaseMCPServer {
     } catch (error) {
       return {
         success: false,
-        message: `Failed to configure Basic Memory: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Failed to configure Basic Memory: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       };
     }
   }

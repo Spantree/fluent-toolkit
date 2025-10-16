@@ -44,7 +44,11 @@ export class ExaServer extends BaseMCPServer {
 
   protected override generateMcpConfig(_secrets: Record<string, string>) {
     // Use uvx with dotenv wrapper to inject EXA_API_KEY
-    return createUvxConfigWithSecrets("mcp-server-exa");
+    return createUvxConfigWithSecrets(
+      "mcp-server-exa",
+      ".env.mcp.secrets",
+      this.metadata.version,
+    );
   }
 
   override getClaudeMdContent(): string {

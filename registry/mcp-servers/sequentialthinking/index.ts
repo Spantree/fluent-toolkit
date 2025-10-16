@@ -33,7 +33,11 @@ export class SequentialThinkingServer extends BaseMCPServer {
   }
 
   protected override generateMcpConfig(_secrets: Record<string, string>) {
-    return createNpxConfig("@modelcontextprotocol/server-sequential-thinking");
+    return createNpxConfig(
+      "@modelcontextprotocol/server-sequential-thinking",
+      true,
+      this.metadata.version,
+    );
   }
 
   override getClaudeMdContent(): string {
