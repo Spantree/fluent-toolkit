@@ -9,12 +9,14 @@ import type { MCPServerModule } from "../src/types/lifecycle.ts";
 import sequentialthinking from "./mcp-servers/sequentialthinking/index.ts";
 import context7 from "./mcp-servers/context7/index.ts";
 import exa from "./mcp-servers/exa/index.ts";
+import basicmemory from "./mcp-servers/basic-memory/index.ts";
 
 // Registry object
 export const registry: Record<string, MCPServerModule> = {
   sequentialthinking,
   context7,
   exa,
+  "basic-memory": basicmemory,
 };
 
 // Helper functions

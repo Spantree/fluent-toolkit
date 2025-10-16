@@ -49,6 +49,7 @@ The interactive wizard will:
 **Core Servers:**
 - **Sequential Thinking** - Enhanced reasoning for complex problems
 - **Context7** - Up-to-date library documentation and code examples
+- **Basic Memory** - Persistent memory and note-taking across sessions
 
 **Optional Servers:**
 - **Exa** - Web search and research (requires API key)
