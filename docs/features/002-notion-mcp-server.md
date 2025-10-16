@@ -7,12 +7,14 @@ Add Notion MCP server to the registry with authentication setup and usage docume
 ## Implementation Plan
 
 ### Phase 1: Registry Entry
+
 - [ ] Create `registry/mcp-servers/notion/` directory
 - [ ] Implement `index.ts` with lifecycle methods
 - [ ] Add precheck for Node.js/npm availability
 - [ ] Implement configure method for Notion integration token
 
 ### Phase 2: Authentication Setup
+
 - [ ] Add interactive prompts for Notion credentials
   - Integration token (required)
   - Database IDs (optional)
@@ -20,6 +22,7 @@ Add Notion MCP server to the registry with authentication setup and usage docume
 - [ ] Validate token format
 
 ### Phase 3: Documentation
+
 - [ ] Create `claude.md` fragment with usage examples
 - [ ] Document Notion API capabilities
 - [ ] Add troubleshooting guide
@@ -37,7 +40,7 @@ export const notionServer: MCPServer = {
     const token = await ctx.prompt({
       type: "input",
       name: "NOTION_API_TOKEN",
-      message: "Enter your Notion integration token:"
+      message: "Enter your Notion integration token:",
     });
 
     await ctx.saveSecret("NOTION_API_TOKEN", token);
@@ -47,9 +50,9 @@ export const notionServer: MCPServer = {
     return {
       type: "stdio",
       command: "npx",
-      args: ["-y", "@modelcontextprotocol/server-notion"]
+      args: ["-y", "@modelcontextprotocol/server-notion"],
     };
-  }
+  },
 };
 ```
 
