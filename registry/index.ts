@@ -10,6 +10,7 @@ import sequentialthinking from "./mcp-servers/sequentialthinking/index.ts";
 import context7 from "./mcp-servers/context7/index.ts";
 import exa from "./mcp-servers/exa/index.ts";
 import basicmemory from "./mcp-servers/basic-memory/index.ts";
+import notion from "./mcp-servers/notion/index.ts";
 
 // Registry object
 export const registry: Record<string, MCPServerModule> = {
@@ -17,6 +18,7 @@ export const registry: Record<string, MCPServerModule> = {
   context7,
   exa,
   "basic-memory": basicmemory,
+  notion,
 };
 
 // Helper functions
