@@ -121,6 +121,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Display formula update instructions
+      - name: Update Homebrew formula
         run: |
-          echo "::notice::Release created! Now update Formula/fluent-toolkit.rb with the checksums above"
+          # Update version
+          sed -i.bak 's/version ".*"/version "${{ steps.version.outputs.VERSION }}"/' Formula/fluent-toolkit.rb
+
+          # Update URLs
+          sed -i.bak 's|download/v.*/ftk-darwin-arm64|download/v${{ steps.version.outputs.VERSION }}/ftk-darwin-arm64|' Formula/fluent-toolkit.rb
+          sed -i.bak 's|download/v.*/ftk-darwin-x86_64|download/v${{ steps.version.outputs.VERSION }}/ftk-darwin-x86_64|' Formula/fluent-toolkit.rb
+          sed -i.bak 's|download/v.*/ftk-linux-x86_64|download/v${{ steps.version.outputs.VERSION }}/ftk-linux-x86_64|' Formula/fluent-toolkit.rb
+
+          # Update checksums - need to handle the two separate macOS sections
+          # First, update ARM64 checksum (first occurrence after "if Hardware::CPU.arm?")
+          awk -v arm64="${{ steps.checksums.outputs.ARM64_SHA256 }}" \
+              -v x86="${{ steps.checksums.outputs.X86_64_SHA256 }}" \
+              -v linux="${{ steps.checksums.outputs.LINUX_SHA256 }}" '
+            /if Hardware::CPU.arm\?/ { arm_section=1 }
+            /else/ && arm_section { arm_section=0; x86_section=1 }
+            /sha256/ && arm_section { sub(/sha256 ".*"/, "sha256 \"" arm64 "\""); arm_section=0 }
+            /sha256/ && x86_section { sub(/sha256 ".*"/, "sha256 \"" x86 "\""); x86_section=0 }
+            /on_linux/ { linux_section=1 }
+            /sha256/ && linux_section { sub(/sha256 ".*"/, "sha256 \"" linux "\""); linux_section=0 }
+            { print }
+          ' Formula/fluent-toolkit.rb > Formula/fluent-toolkit.rb.tmp
+
+          mv Formula/fluent-toolkit.rb.tmp Formula/fluent-toolkit.rb
+          rm -f Formula/fluent-toolkit.rb.bak
+
+          # Show the changes
+          git diff Formula/fluent-toolkit.rb
+
+      - name: Commit and push formula update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/fluent-toolkit.rb
+          git commit -m "chore(formula): update checksums for v${{ steps.version.outputs.VERSION }}"
+          git push origin main
