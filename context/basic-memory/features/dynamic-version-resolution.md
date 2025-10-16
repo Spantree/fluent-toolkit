@@ -1,7 +1,7 @@
 ---
 title: dynamic-version-resolution
 type: note
-permalink: technologies/dynamic-version-resolution
+permalink: features/dynamic-version-resolution
 tags:
   - mcp-registry,version-management,package-managers
 ---
@@ -82,7 +82,7 @@ async resolveVersion(): Promise<string | undefined> {
 async install(ctx: LifecycleContext): Promise<InstallResult> {
   const resolvedVersion = await this.resolveVersion();
   if (resolvedVersion && resolvedVersion !== this.metadata.version) {
-    ctx.info(`Using latest version: ${resolvedVersion}`);
+    ctx.info(\`Using latest version: \${resolvedVersion}\`);
   }
   const mcpConfig = this.generateMcpConfig(secrets, resolvedVersion);
   // ...
@@ -157,7 +157,7 @@ protected override generateMcpConfig(_secrets: Record<string, string>, _version?
   // Version ignored - custom command structure
   return {
     command: "uvx",
-    args: ["basic-memory", "mcp", `--project=${projectName}`],
+    args: ["basic-memory", "mcp", \`--project=\${projectName}\`],
   };
 }
 ```
@@ -172,11 +172,11 @@ try {
   if (versionInfo.latestVersion) {
     return versionInfo.latestVersion;
   }
-  console.warn(`Failed to fetch: ${versionInfo.error}`);
+  console.warn(\`Failed to fetch: \${versionInfo.error}\`);
 } catch (error) {
-  console.warn(`Error resolving version:`, error);
+  console.warn(\`Error resolving version:\`, error);
 }
-return undefined; // Graceful fallback
+return undefined;  // Graceful fallback
 ```
 
 ### Resource Leak Prevention
@@ -185,8 +185,8 @@ When fetch returns 404 or other error status, must consume response body:
 
 ```typescript
 if (!response.ok) {
-  await response.text(); // CRITICAL: Prevents resource leak
-  console.error(`Failed to fetch: ${response.status}`);
+  await response.text();  // CRITICAL: Prevents resource leak
+  console.error(\`Failed to fetch: \${response.status}\`);
   return null;
 }
 ```
@@ -217,7 +217,7 @@ fetchLatestVersion("requests", "pypi"); // → PackageVersionInfo
 ## Performance Characteristics
 
 - **Query Time**: 200-400ms per registry lookup
-- **When Executed**: Only during `ftk init` installation
+- **When Executed**: Only during \`ftk init\` installation
 - **Runtime Impact**: Zero (versions resolved at install time, not startup)
 - **Caching**: Not implemented yet (future enhancement)
 
@@ -225,45 +225,42 @@ fetchLatestVersion("requests", "pypi"); // → PackageVersionInfo
 
 ### npm Registry
 
-- **Endpoint**: `https://registry.npmjs.org/${packageName}/latest`
+- **Endpoint**: \`https://registry.npmjs.org/\${packageName}/latest\`
 - **Authentication**: None required for public packages
-- **Response Format**: JSON with `version` field
+- **Response Format**: JSON with \`version\` field
 - **Rate Limits**: No explicit limits for public API
 
 ### PyPI
 
-- **Endpoint**: `https://pypi.org/pypi/${packageName}/json`
+- **Endpoint**: \`https://pypi.org/pypi/\${packageName}/json\`
 - **Authentication**: None required
-- **Response Format**: JSON with `info.version` field
+- **Response Format**: JSON with \`info.version\` field
 - **Rate Limits**: No explicit limits
 
 ## User Experience
 
 Before (hardcoded):
-
-```
+\`\`\`
 ✓ Sequential Thinking configured successfully
-```
+\`\`\`
 
 After (dynamic):
-
-```
+\`\`\`
 ℹ Using latest version: 0.3.2
 ✓ Sequential Thinking configured successfully
-```
+\`\`\`
 
 Generated .mcp.json:
-
-```json
+\`\`\`json
 {
-  "mcpServers": {
-    "sequentialthinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.3.2"]
-    }
-  }
+"mcpServers": {
+"sequentialthinking": {
+"command": "npx",
+"args": ["-y", "@modelcontextprotocol/server-sequential-thinking@0.3.2"]
 }
-```
+}
+}
+\`\`\`
 
 ## Benefits
 
@@ -292,7 +289,7 @@ Generated .mcp.json:
 Potential improvements:
 
 1. **Version Caching**: Cache registry responses for 24 hours to reduce network calls
-2. **Semver Constraints**: Support version ranges like `"^1.0.0"` or `"~2.1.0"`
+2. **Semver Constraints**: Support version ranges like \`"^1.0.0"\` or \`"~2.1.0"\`
 3. **Offline Mode**: Pre-fetch and bundle versions for offline installation
 4. **Version Notifications**: Alert when new versions available for installed servers
 5. **Rollback Support**: Easy downgrade mechanism to previous working version
@@ -311,8 +308,8 @@ Potential improvements:
 
 ## relations
 
-- implements: [[issue-6-pin-mcp-server-versions]]
-- depends-on: [[mcp-server-lifecycle]], [[package-registries]]
+- related-to: [[issue-6-pin-mcp-server-versions]]
+- depends-on: [[mcp-server-lifecycle]]
 - uses-technology: [deno, typescript, npm-registry, pypi, fetch-api]
 - implemented-in: [src/utils/package-version.ts, src/lib/base-server.ts, src/types/lifecycle.ts]
 - tested-by: [src/utils/package-version_test.ts]

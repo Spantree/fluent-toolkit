@@ -91,6 +91,24 @@ chore(deps): update Deno dependencies to latest
 - Use relative links within docs/ directory
 - Archive historical documents in `docs/archive/`
 
+### Basic Memory Notes
+
+All project documentation should be stored as Basic Memory notes, not regular markdown files:
+
+**Folder Structure**:
+- `features/` - Feature documentation (not prefixed with issue numbers, may span multiple issues)
+- `plans/` - Issue-specific task management with status tracking (prefixed with `issue-N-`)
+- `guides/` - How-to documentation and usage instructions
+- `technologies/` - Technical documentation and architecture
+- `research/` - Cached research results
+- `meetings/` - Meeting notes
+
+**Best Practices**:
+- Use `related-to: [[issue-N-description]]` to link features to implementing issues
+- Format all notes with Prettier after creation
+- Include observations and relations sections
+- Use kebab-case for note titles
+
 ## Architecture
 
 ### Modular Server Registry
