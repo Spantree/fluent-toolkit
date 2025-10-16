@@ -21,15 +21,27 @@ class FluentToolkit < Formula
     sha256 "ff706fc1e28a63c5fac94c3c51c82f3026ea1fec00dfcbc55883b78d3ef1deea"
   end
 
+  # Install from branch for testing (use --HEAD flag)
+  head "https://github.com/spantree/fluent-toolkit.git", branch: "feat/006-pin-mcp-server-versions"
+
+  depends_on "deno" => :build  # Only needed for HEAD builds
+
   def install
-    if OS.mac?
-      if Hardware::CPU.arm?
-        bin.install "ftk-darwin-arm64" => "ftk"
-      else
-        bin.install "ftk-darwin-x86_64" => "ftk"
-      end
+    if build.head?
+      # Build from source for HEAD installs
+      system "deno", "task", "compile"
+      bin.install "bin/ftk"
     else
-      bin.install "ftk-linux-x86_64" => "ftk"
+      # Install pre-compiled binary for stable release
+      if OS.mac?
+        if Hardware::CPU.arm?
+          bin.install "ftk-darwin-arm64" => "ftk"
+        else
+          bin.install "ftk-darwin-x86_64" => "ftk"
+        end
+      else
+        bin.install "ftk-linux-x86_64" => "ftk"
+      end
     end
   end
 

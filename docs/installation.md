@@ -53,6 +53,45 @@ This will:
 - Generate `.mcp.json` for Claude Code
 - Update your `CLAUDE.md` with usage instructions
 
+## Installing Development Version
+
+To test features from a development branch before they're released:
+
+### Prerequisites
+
+You'll need Deno installed for building from source:
+
+```bash
+# macOS
+brew install deno
+
+# Other platforms: https://deno.land/manual/getting_started/installation
+```
+
+### Install from Branch
+
+```bash
+# Install HEAD version (compiles from source)
+brew install --HEAD spantree/fluent-toolkit/fluent-toolkit
+
+# Or reinstall if already installed
+brew reinstall --HEAD spantree/fluent-toolkit/fluent-toolkit
+```
+
+This will:
+- Clone the repository at the development branch
+- Compile the binary locally using Deno
+- Install the compiled binary
+
+**Note**: HEAD installations are slower than stable releases since they compile from source.
+
+### Switch Back to Stable
+
+```bash
+brew uninstall fluent-toolkit
+brew install spantree/fluent-toolkit/fluent-toolkit
+```
+
 ## Updating
 
 ### Homebrew
@@ -60,6 +99,12 @@ This will:
 ```bash
 brew update
 brew upgrade fluent-toolkit
+```
+
+For HEAD installations:
+
+```bash
+brew upgrade --fetch-HEAD fluent-toolkit
 ```
 
 ### Manual
