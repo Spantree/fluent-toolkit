@@ -138,6 +138,27 @@ This project uses Homebrew for distribution:
 
 ## Development Workflow
 
+### Feature Branch Pattern
+
+All features MUST be developed in dedicated feature branches following this naming convention:
+
+**Pattern**: `feat/{issue-number}-{short-description}`
+
+**Examples**:
+- `feat/001-add-claude-code-installation-and-version-checks`
+- `feat/002-add-notion-mcp-server-support`
+- `feat/006-pin-mcp-server-versions`
+
+**Workflow**:
+1. Create branch from `main`: `git checkout -b feat/XXX-description`
+2. Make changes and commit following commit message convention
+3. Push branch: `git push -u origin feat/XXX-description`
+4. Open PR with detailed description and feedback areas
+5. Address review feedback
+6. Merge via squash commit to maintain clean history
+
+### Local Development
+
 1. **Local testing**: `deno task dev init`
 2. **Type checking**: `deno check src/main.ts`
 3. **Formatting**: `deno fmt`
