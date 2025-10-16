@@ -21,8 +21,8 @@ class FluentToolkit < Formula
     sha256 "ff706fc1e28a63c5fac94c3c51c82f3026ea1fec00dfcbc55883b78d3ef1deea"
   end
 
-  # Install from branch for testing (use --HEAD flag)
-  head "https://github.com/spantree/fluent-toolkit.git", branch: "feat/006-pin-mcp-server-versions"
+  # Install from main branch for testing (use --HEAD flag)
+  head "https://github.com/spantree/fluent-toolkit.git", branch: "main"
 
   depends_on "deno" => :build  # Only needed for HEAD builds
 
