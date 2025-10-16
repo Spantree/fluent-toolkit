@@ -1,0 +1,126 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          # macOS ARM64 (Apple Silicon)
+          deno compile --allow-all \
+            --target=aarch64-apple-darwin \
+            --output=dist/ftk-darwin-arm64 \
+            src/main.ts
+
+          # macOS x86_64 (Intel)
+          deno compile --allow-all \
+            --target=x86_64-apple-darwin \
+            --output=dist/ftk-darwin-x86_64 \
+            src/main.ts
+
+          # Linux x86_64
+          deno compile --allow-all \
+            --target=x86_64-unknown-linux-gnu \
+            --output=dist/ftk-linux-x86_64 \
+            src/main.ts
+
+      - name: Calculate checksums
+        id: checksums
+        run: |
+          cd dist
+          echo "ARM64_SHA256=$(shasum -a 256 ftk-darwin-arm64 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "X86_64_SHA256=$(shasum -a 256 ftk-darwin-x86_64 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "LINUX_SHA256=$(shasum -a 256 ftk-linux-x86_64 | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Create release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          ## Installation
+
+          ### Homebrew (macOS/Linux)
+
+          ```bash
+          # Tap the repository
+          brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
+
+          # Install fluent-toolkit
+          brew install fluent-toolkit
+          ```
+
+          Or use the one-liner:
+          ```bash
+          brew install spantree/fluent-toolkit/fluent-toolkit
+          ```
+
+          ### Manual Installation
+
+          Download the appropriate binary for your platform:
+          - **macOS (Apple Silicon)**: ftk-darwin-arm64
+          - **macOS (Intel)**: ftk-darwin-x86_64
+          - **Linux**: ftk-linux-x86_64
+
+          Make it executable and move to your PATH:
+          ```bash
+          chmod +x ftk-darwin-arm64
+          sudo mv ftk-darwin-arm64 /usr/local/bin/ftk
+          ```
+
+          ## Checksums
+
+          Verify your download with SHA256:
+
+          ```
+          ARM64:  ${{ steps.checksums.outputs.ARM64_SHA256 }}
+          x86_64: ${{ steps.checksums.outputs.X86_64_SHA256 }}
+          Linux:  ${{ steps.checksums.outputs.LINUX_SHA256 }}
+          ```
+
+          ## Update Homebrew Formula
+
+          Update `Formula/fluent-toolkit.rb` with:
+          - Version: `${{ steps.version.outputs.VERSION }}`
+          - URLs: Replace version in download URLs
+          - Checksums: Use the SHA256 values above
+
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release-notes.md
+          files: |
+            dist/ftk-darwin-arm64
+            dist/ftk-darwin-x86_64
+            dist/ftk-linux-x86_64
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Display formula update instructions
+        run: |
+          echo "::notice::Release created! Now update Formula/fluent-toolkit.rb with the checksums above"
