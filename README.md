@@ -4,6 +4,13 @@
 
 MCP server setup toolkit for Claude Code. Simplifies the installation and configuration of Model Context Protocol servers.
 
+## Prerequisites
+
+- **Claude Code 1.0.0+** - [Installation Guide](https://docs.claude.com/claude-code/install)
+- Node.js or Python (depending on which MCP servers you install)
+
+The `ftk init` command will automatically check for Claude Code and guide you through installation if needed.
+
 ## Installation
 
 ### Homebrew (macOS/Linux)
@@ -26,6 +33,7 @@ ftk init
 ```
 
 The interactive wizard will:
+- Verify Claude Code is installed and up to date
 - Let you select which MCP servers to install
 - Check for required system dependencies
 - Prompt for API keys and secrets
@@ -33,10 +41,26 @@ The interactive wizard will:
 - Update `CLAUDE.md` with usage instructions
 - Create optional context directory for AI resources
 
+### Command Options
+
+```bash
+ftk init [options]
+
+Options:
+  -f, --force              Force re-initialization even if already configured
+  --skip-validation        Skip dependency validation checks
+  --skip-checks           Skip Claude Code installation and version checks
+  -s, --servers <list>     Specify servers to install (comma-separated)
+  --no-prompt             Accept all defaults without prompting
+```
+
+Use `--skip-checks` to bypass the Claude Code version check (useful for CI/CD or advanced users).
+
 ## Features
 
 ### Currently Implemented
 
+- ✅ **Claude Code version checking** - Ensures compatible version is installed
 - ✅ **Interactive setup wizard** - Guided MCP server installation
 - ✅ **Modular server architecture** - Easy to add new servers
 - ✅ **Dependency checking** - Validates system requirements before installation

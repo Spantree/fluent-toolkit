@@ -24,14 +24,16 @@ await new Command()
   .command("init", "Initialize MCP servers for Claude Code in current project")
   .option("-f, --force", "Force re-initialization even if already configured")
   .option("--skip-validation", "Skip dependency validation checks")
+  .option("--skip-checks", "Skip Claude Code installation and version checks")
   .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
   .option("--no-prompt", "Accept all defaults without prompting")
   .action(async (options) => {
     const initOptions: InitOptions = {
       force: options.force,
       skipValidation: options.skipValidation,
+      skipChecks: options.skipChecks,
       servers: options.servers,
-      noPrompt: options.noPrompt,
+      noPrompt: !options.prompt, // Cliffy's --no-prompt becomes prompt: false
     };
 
     await InitCommand.execute(initOptions);

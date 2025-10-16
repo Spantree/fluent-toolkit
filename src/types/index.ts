@@ -116,6 +116,7 @@ export interface SectionBounds {
 // CLI Command Options
 export interface InitOptions {
   skipValidation?: boolean;
+  skipChecks?: boolean; // Skip Claude Code version check
   force?: boolean;
   servers?: string[];
   noPrompt?: boolean;

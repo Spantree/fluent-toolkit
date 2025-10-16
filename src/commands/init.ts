@@ -11,6 +11,7 @@ import { ClaudeMdManager } from "../core/claude-md.ts";
 import { ContextDirManager } from "../core/context-dir.ts";
 import { Prompts } from "../ui/prompts.ts";
 import { DefaultLifecycleContext } from "../lib/lifecycle-context.ts";
+import { checkClaudeCodeInstallation, getInstallationInstructions } from "../utils/claude-version.ts";
 import type { InitOptions, MCPServerModule } from "../types/index.ts";
 
 export class InitCommand {
@@ -22,7 +23,41 @@ export class InitCommand {
       Prompts.info("Welcome to Fluent Toolkit!");
       Prompts.info("From the Fluent Workshop - https://fluentwork.shop");
 
-      // 1. Check if already initialized
+      // 1. Pre-flight check: Verify Claude Code installation
+      if (!options.skipChecks) {
+        Prompts.progress("Checking Claude Code installation");
+        const versionCheck = await checkClaudeCodeInstallation();
+
+        if (!versionCheck.installed) {
+          Prompts.error("Claude Code is not installed");
+          console.log(getInstallationInstructions());
+          console.log("\nAfter installing Claude Code, run 'ftk init' again.");
+          console.log("Or use 'ftk init --skip-checks' to bypass this check.\n");
+          return;
+        }
+
+        if (!versionCheck.meetsRequirements) {
+          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated`);
+          console.log(getInstallationInstructions());
+          console.log("\nSome features may not work correctly with older versions.");
+
+          if (!options.noPrompt) {
+            const shouldContinue = await Prompts.confirm(
+              "Continue anyway?",
+              false
+            );
+
+            if (!shouldContinue) {
+              Prompts.info("Setup cancelled");
+              return;
+            }
+          }
+        } else {
+          Prompts.success(`Claude Code ${versionCheck.version} detected`);
+        }
+      }
+
+      // 2. Check if already initialized
       const isInitialized = await ConfigManager.isProjectInitialized();
       if (isInitialized && !options.force) {
         if (options.noPrompt) {
@@ -41,7 +76,7 @@ export class InitCommand {
         }
       }
 
-      // 2. Get available servers
+      // 3. Get available servers
       const allServers = ServerRegistry.getAll();
       const coreServers = ServerRegistry.getCore();
       const optionalServers = ServerRegistry.getOptional();
@@ -50,7 +85,7 @@ export class InitCommand {
         `Found ${coreServers.length} core servers and ${optionalServers.length} optional servers`
       );
 
-      // 3. Server selection
+      // 4. Server selection
       let selectedServers: MCPServerModule[];
 
       if (options.servers && options.servers.length > 0) {
@@ -89,7 +124,7 @@ export class InitCommand {
         return;
       }
 
-      // 4. Prompt for context directory name
+      // 5. Prompt for context directory name
       const contextDirName = options.noPrompt
         ? "context"
         : await Prompts.requestContextDirName();
