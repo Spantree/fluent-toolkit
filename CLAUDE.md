@@ -143,6 +143,7 @@ This project uses Homebrew for distribution:
 3. **Formatting**: `deno fmt`
 4. **Linting**: `deno lint`
 5. **Compile**: `deno task compile` or `deno task compile:all`
+6. **Check CI status**: `gh run list` or `gh run view`
 
 ## Release Workflow
 
