@@ -2,11 +2,11 @@
  * Sequential Thinking MCP Server
  */
 
-import { join } from "@std/path";
 import { BaseMCPServer } from "../../../src/lib/base-server.ts";
 import { createNpxConfig } from "../../../src/lib/utils/dotenv.ts";
 import type { DependencyRequirement, SecretRequirement } from "../../../src/lib/base-server.ts";
 import type { ServerMetadata } from "../../../src/types/lifecycle.ts";
+import claudeMdContent from "./claude.md" with { type: "text" };
 
 export class SequentialThinkingServer extends BaseMCPServer {
   override metadata: ServerMetadata = {
@@ -42,15 +42,7 @@ export class SequentialThinkingServer extends BaseMCPServer {
   }
 
   override getClaudeMdContent(): string {
-    // Read the claude.md file from this directory
-    const modulePath = new URL(".", import.meta.url).pathname;
-    const claudeMdPath = join(modulePath, "claude.md");
-
-    try {
-      return Deno.readTextFileSync(claudeMdPath);
-    } catch (_error) {
-      return `### ${this.metadata.name}\n\n${this.metadata.description}`;
-    }
+    return claudeMdContent;
   }
 }
 

@@ -10,6 +10,7 @@ import type {
   LifecycleContext,
   ServerMetadata,
 } from "../../../src/types/lifecycle.ts";
+import claudeMdContent from "./claude.md" with { type: "text" };
 
 export class BasicMemoryServer extends BaseMCPServer {
   override metadata: ServerMetadata = {
@@ -125,14 +126,7 @@ export class BasicMemoryServer extends BaseMCPServer {
   }
 
   override getClaudeMdContent(): string {
-    const modulePath = new URL(".", import.meta.url).pathname;
-    const claudeMdPath = join(modulePath, "claude.md");
-
-    try {
-      return Deno.readTextFileSync(claudeMdPath);
-    } catch (_error) {
-      return `### ${this.metadata.name}\n\n${this.metadata.description}`;
-    }
+    return claudeMdContent;
   }
 }
 
