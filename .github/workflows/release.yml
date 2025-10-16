@@ -121,8 +121,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Homebrew formula
+      - name: Update Homebrew formula on main branch
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Checkout main branch
+          git fetch origin main
+          git checkout main
+
           # Update version
           sed -i.bak 's/version ".*"/version "${{ steps.version.outputs.VERSION }}"/' Formula/fluent-toolkit.rb
 
@@ -132,7 +139,6 @@ jobs:
           sed -i.bak 's|download/v.*/ftk-linux-x86_64|download/v${{ steps.version.outputs.VERSION }}/ftk-linux-x86_64|' Formula/fluent-toolkit.rb
 
           # Update checksums - need to handle the two separate macOS sections
-          # First, update ARM64 checksum (first occurrence after "if Hardware::CPU.arm?")
           awk -v arm64="${{ steps.checksums.outputs.ARM64_SHA256 }}" \
               -v x86="${{ steps.checksums.outputs.X86_64_SHA256 }}" \
               -v linux="${{ steps.checksums.outputs.LINUX_SHA256 }}" '
@@ -151,10 +157,7 @@ jobs:
           # Show the changes
           git diff Formula/fluent-toolkit.rb
 
-      - name: Commit and push formula update
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Commit and push
           git add Formula/fluent-toolkit.rb
           git commit -m "chore(formula): update checksums for v${{ steps.version.outputs.VERSION }}"
           git push origin main
