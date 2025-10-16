@@ -34,16 +34,25 @@ fluent-toolkit/
 │   └── types/                  # TypeScript definitions
 │       └── index.ts            # Type definitions
 ├── registry/
-│   └── servers.json            # MCP server definitions
-├── templates/
-│   ├── env.template            # .env.mcp.secrets template
-│   └── claude-md/              # CLAUDE.md section templates
-│       └── mcp-overview.md
+│   ├── index.ts                # Registry discovery
+│   └── mcp-servers/            # Modular server definitions
+│       ├── sequentialthinking/
+│       ├── context7/
+│       ├── exa/
+│       └── basic-memory/
+├── Formula/                    # Homebrew formula
+│   └── fluent-toolkit.rb
+├── docs/                       # Documentation
+│   ├── README.md               # Documentation index
+│   ├── archive/                # Historical documents
+│   │   ├── design.md           # Design decisions
+│   │   ├── research.md         # Research notes
+│   │   └── refactoring.md      # Refactoring summary
+│   └── ...
 ├── deno.json                   # Deno configuration
-├── README.md                   # Marketing documentation
-├── DESIGN.md                   # Design decisions
-├── RESEARCH_FINDINGS.md        # Research notes
-└── DEVELOPMENT.md              # This file
+├── README.md                   # Project documentation
+├── CLAUDE.md                   # AI assistant instructions
+└── context/                    # AI context directory (gitignored)
 ```
 
 ## Development Commands
@@ -130,7 +139,7 @@ claude
 
 ### Server Registry
 
-The server registry (`registry/servers.json`) contains metadata for all available MCP servers:
+The server registry uses a modular architecture where each server is defined in its own directory under `registry/mcp-servers/`. Available MCP servers:
 
 - **sequential-thinking**: Enhanced reasoning (core)
 - **context7**: Library documentation (core)
@@ -214,8 +223,8 @@ When adding new features:
 
 ## Architecture Decisions
 
-See [DESIGN.md](./DESIGN.md) for detailed architecture decisions and rationale.
+See [archive/design.md](archive/design.md) for detailed architecture decisions and rationale.
 
 ## Research Background
 
-See [RESEARCH_FINDINGS.md](./RESEARCH_FINDINGS.md) for research on Claude Code plugins, Agent SDK, and CLAUDE.md behavior.
+See [archive/research.md](archive/research.md) for research on Claude Code plugins, Agent SDK, and CLAUDE.md behavior.

@@ -17,6 +17,10 @@ Welcome to the fluent-toolkit documentation!
 - **[Homebrew Tap Guide](homebrew-tap.md)** - How Homebrew taps work with this project
 - **[Distribution Guide](distribution.md)** - Detailed distribution options and workflows
 
+## Testing
+
+- **[HEAD Installation Testing](testing/head-installation-test.md)** - Guide for testing development versions
+
 ## Reference
 
 - **Formula**: See `../Formula/README.md` for Homebrew formula documentation
