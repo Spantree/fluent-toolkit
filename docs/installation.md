@@ -1,29 +1,39 @@
-# Installing fluent-toolkit (Internal)
-
-Quick installation guide for Spantree team members.
+# Installation Guide
 
 ## Prerequisites
 
 - macOS or Linux
-- GitHub account with access to `spantree/fluent-toolkit` repository
-- SSH key configured with GitHub (check with `ssh -T git@github.com`)
+- [Homebrew](https://brew.sh) installed
 
 ## Installation
 
-**One-liner (recommended):**
+### Homebrew (Recommended)
+
 ```bash
 brew install spantree/fluent-toolkit/fluent-toolkit
 ```
 
-**Or tap first, then install:**
+Verify installation:
+
 ```bash
-# Tap the repository (using SSH - no token needed!)
-brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
+ftk --version
+```
 
-# Install fluent-toolkit
-brew install fluent-toolkit
+### Manual Installation
 
-# Verify installation
+Download the appropriate binary for your platform from [GitHub Releases](https://github.com/spantree/fluent-toolkit/releases):
+
+- **macOS (Apple Silicon)**: `ftk-darwin-arm64`
+- **macOS (Intel)**: `ftk-darwin-x86_64`
+- **Linux**: `ftk-linux-x86_64`
+
+Make it executable and move to your PATH:
+
+```bash
+chmod +x ftk-darwin-arm64
+sudo mv ftk-darwin-arm64 /usr/local/bin/ftk
+
+# Verify
 ftk --version
 ```
 
@@ -44,49 +54,58 @@ This will:
 
 ## Updating
 
-When a new version is released:
+### Homebrew
 
 ```bash
 brew update
 brew upgrade fluent-toolkit
+```
+
+### Manual
+
+Download the latest release and replace the binary in your PATH.
+
+## Uninstalling
+
+### Homebrew
+
+```bash
+brew uninstall fluent-toolkit
+brew untap spantree/fluent-toolkit
+```
+
+### Manual
+
+```bash
+sudo rm /usr/local/bin/ftk
 ```
 
 ## Troubleshooting
 
-### "Permission denied" when tapping
+### Command not found
 
-Your SSH key might not be configured with GitHub:
+Make sure `/usr/local/bin` is in your PATH:
 
 ```bash
-# Test SSH connection
-ssh -T git@github.com
-
-# Should see: "Hi username! You've successfully authenticated..."
+echo $PATH
 ```
 
-If not working, add your SSH key to GitHub:
-1. Go to: https://github.com/settings/keys
-2. Click "New SSH key"
-3. Paste your public key (usually in `~/.ssh/id_ed25519.pub` or `~/.ssh/id_rsa.pub`)
+If not, add to your shell profile (`~/.zshrc` or `~/.bash_profile`):
 
-Or generate a new key:
 ```bash
-ssh-keygen -t ed25519 -C "your.email@spantree.net"
-cat ~/.ssh/id_ed25519.pub  # Copy this to GitHub
+export PATH="/usr/local/bin:$PATH"
 ```
 
-### Formula not found
+### Homebrew formula not found
+
+Update Homebrew and retry:
 
 ```bash
-# Refresh the tap
 brew update
-brew upgrade fluent-toolkit
-
-# If still not working, untap and re-tap
-brew untap spantree/fluent-toolkit
-brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
+brew install spantree/fluent-toolkit/fluent-toolkit
 ```
 
 ### Need help?
 
-Ask in #engineering or reach out to the maintainer.
+- Check [GitHub Issues](https://github.com/spantree/fluent-toolkit/issues)
+- Read the [documentation](README.md)

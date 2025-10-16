@@ -1,139 +1,129 @@
-# Quick Start: Private Homebrew Distribution
+# Quick Start: Release Workflow
 
-**TL;DR:** The formula lives in this repo. No separate homebrew-tap needed!
+Guide for maintainers releasing new versions.
 
-## One-Time Setup (2 minutes)
+## Release Process
 
-### 1. Verify Formula Exists
-
-The formula is already in this repo at `Formula/fluent-toolkit.rb`. No additional setup needed!
-
-## Release Process (Every Release)
-
-### 1. Run Release Script
+### 1. Update Version and Build
 
 ```bash
-cd /path/to/fluent-toolkit
+# Update version in deno.json manually
+# Then create and push tag
+git tag -a v0.2.0 -m "Release v0.2.0
 
-# Create release (updates version, compiles binaries, creates tag)
-./scripts/release.sh 0.1.0
+- Feature highlights
+- Bug fixes
+- Breaking changes (if any)"
 
-# Push tag to trigger release
-git push origin v0.1.0
+git push origin main
+git push origin v0.2.0
 ```
 
-### 2. Create GitHub Release
+### 2. GitHub Actions Builds Automatically
 
-1. Go to: https://github.com/spantree/fluent-toolkit/releases/new
-2. Select tag: `v0.1.0`
-3. Upload binaries from `dist/` folder:
-   - `ftk-darwin-arm64`
-   - `ftk-darwin-x86_64`
-   - `ftk-linux-x86_64`
-4. Click "Publish release"
+The workflow triggers on tags and:
+- Compiles binaries for macOS (arm64/x86_64) and Linux
+- Calculates SHA256 checksums
+- Creates GitHub release with binaries
+- Generates release notes
+
+Check progress at: https://github.com/spantree/fluent-toolkit/actions
+
+Or use `gh` CLI:
+```bash
+gh run watch
+```
 
 ### 3. Update Homebrew Formula
 
-The release script outputs checksums. Update the formula in this repo:
+Once the release is created, copy checksums from release notes and update `Formula/fluent-toolkit.rb`:
+
+```ruby
+version "0.2.0"  # Update version
+
+# Update URLs (change version number)
+url "https://github.com/spantree/fluent-toolkit/releases/download/v0.2.0/ftk-darwin-arm64"
+sha256 "NEW_CHECKSUM_HERE"  # From release notes
+```
+
+Commit and push:
 
 ```bash
-# Edit Formula/fluent-toolkit.rb
-# Update:
-#   - version number
-#   - download URLs (v0.1.0 → v0.2.0)
-#   - SHA256 checksums (from release script output)
-
 git add Formula/fluent-toolkit.rb
-git commit -m "Update formula to v0.1.0"
+git commit -m "chore(formula): update checksums for v0.2.0"
 git push origin main
 ```
 
-## Installation for Colleagues
-
-**Requirements:**
-- GitHub access to `spantree/fluent-toolkit` repository
-- SSH key configured with GitHub (most developers already have this)
-
-**Installation (SSH - Recommended):**
+### 4. Test Installation
 
 ```bash
-# One-liner install (no token needed!)
-brew install spantree/fluent-toolkit/fluent-toolkit
-
-# Or tap first, then install:
-brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
-brew install fluent-toolkit
+brew update
+brew upgrade fluent-toolkit
 
 # Verify
 ftk --version
 ```
 
-**Alternative: HTTPS with Token** (if SSH not set up)
+## Automated Release Script (Optional)
+
+For convenience, use the release script:
 
 ```bash
-# Set GitHub token (one-time)
-export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxxxxxxxxxx
-echo 'export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxxxxxxxxxx' >> ~/.zshrc
-
-# Install
-brew tap spantree/fluent-toolkit https://github.com/spantree/fluent-toolkit
-brew install fluent-toolkit
+./scripts/release.sh 0.2.0
 ```
 
-**Updates:**
+This updates version, compiles binaries, and calculates checksums locally. You still need to:
+1. Push the tag
+2. Update formula with checksums from GitHub release
+3. Test installation
 
+## Troubleshooting
+
+### GitHub Actions Failed
+
+Check logs:
 ```bash
-brew update
-brew upgrade fluent-toolkit
+gh run view --log
 ```
 
-## Testing Before Release
+Common issues:
+- Type errors: Run `deno check src/main.ts` locally
+- Compilation errors: Test `deno task compile:all`
 
-Test the compiled binary locally:
+### Formula Checksum Mismatch
 
+Download binary and verify manually:
 ```bash
-# Compile
-deno task compile
-
-# Test
-./bin/ftk --version
-./bin/ftk init --help
-
-# Test in a new terminal (simulates fresh install)
-export PATH="/path/to/fluent-toolkit/bin:$PATH"
-ftk init
+curl -L -o ftk https://github.com/spantree/fluent-toolkit/releases/download/v0.2.0/ftk-darwin-arm64
+shasum -a 256 ftk
 ```
 
-## FAQs
+Compare with formula.
 
-**Q: Why use SSH instead of a GitHub token?**
-A: Most developers already have SSH keys set up for GitHub. SSH = zero setup, HTTPS token = extra credential to manage.
+## Release Checklist
 
-**Q: Can I keep the main repo private too?**
-A: Yes! The binaries are released publicly via GitHub Releases, but the source code can remain private.
+- [ ] Version updated in `deno.json`
+- [ ] Tag created and pushed
+- [ ] GitHub Actions completed successfully
+- [ ] Formula updated with new checksums
+- [ ] Formula changes committed and pushed
+- [ ] Installation tested locally
+- [ ] Release notes reviewed
 
-**Q: How do I revoke access?**
-A: Remove the user from the `homebrew-tap` repository on GitHub.
+## Commit Message Convention
 
-**Q: What if someone doesn't have SSH set up?**
-A: Two options:
-1. Help them set up SSH (5 minutes): `ssh-keygen -t ed25519 -C "email@example.com"` then add to GitHub
-2. Use the HTTPS + token method instead
+All commits must follow Conventional Commits:
 
-**Q: What if someone doesn't have Homebrew?**
-A: They can install Homebrew first: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+```
+type(scope): subject max 50 chars
 
-**Q: Can I use a different name for the tap?**
-A: Yes! If you use `homebrew-fluent`, colleagues would use: `brew tap spantree/fluent`
+Body wrapped at 72 characters.
+```
 
-**Q: When should I go public?**
-A: When the tool is stable, documented, and you want community contributions. Just change repo visibility - no code changes needed!
+Examples:
+- `feat(registry): add new MCP server`
+- `fix(cli): handle missing config gracefully`
+- `chore(formula): update checksums for v0.2.0`
+- `docs: update installation instructions`
 
-## Next Steps
-
-1. Run `./scripts/release.sh 0.1.0`
-2. Create GitHub release with binaries
-3. Update `Formula/fluent-toolkit.rb` with checksums
-4. Share installation instructions with team
-
-See [homebrew-tap.md](homebrew-tap.md) for detailed tap documentation.
+See [CLAUDE.md](../CLAUDE.md) for full details.
