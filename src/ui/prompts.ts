@@ -5,7 +5,6 @@
 
 import { Checkbox, Confirm, Input, Select } from "@cliffy/prompt";
 import { colors } from "@cliffy/ansi/colors";
-import type { MCPServer } from "../types/index.ts";
 
 export class Prompts {
   /**
@@ -70,7 +69,12 @@ export class Prompts {
    */
   static async multiSelect(
     message: string,
-    servers: MCPServer[],
+    servers: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+    }>,
   ): Promise<string[]> {
     const options = servers.map((server) => ({
       name: `${server.name} - ${server.description}`,

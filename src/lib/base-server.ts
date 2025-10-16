@@ -307,11 +307,11 @@ export abstract class BaseMCPServer implements MCPServerModule {
    * Default validate implementation (optional)
    * Returns success by default - override for custom validation
    */
-  validate(_ctx: LifecycleContext): ValidationResult {
-    return {
+  validate(_ctx: LifecycleContext): Promise<ValidationResult> {
+    return Promise.resolve({
       success: true,
       message: "No validation checks defined",
-    };
+    });
   }
 
   /**
