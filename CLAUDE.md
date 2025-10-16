@@ -114,6 +114,35 @@ The context directory feature allows MCP servers to store data:
 - Servers can opt-in to git exposure via `exposeContextToGit: true`
 - See `docs/context-directory.md` for details
 
+### Basic Memory Conventions
+
+When using Basic Memory MCP for project notes and plans:
+
+**File Naming**:
+- Use kebab-case for filenames (e.g., `claude-code-checks.md`, `mcp-authentication-setup.md`)
+- Titles in frontmatter should use Title Case (e.g., `title: "Issue 1: Add Claude Code Installation and Version Checks"`)
+
+**Frontmatter Requirements**:
+```yaml
+---
+title: "Issue Title in Title Case"
+kind: Plan  # or Note, Guide, etc.
+created_at: 2025-10-16T15:00:00.000Z
+status: active  # draft, active, complete
+issue_permalink: https://github.com/org/repo/issues/1
+pr_permalink: https://github.com/org/repo/pull/10
+tags:
+  - kebab-case-tag
+  - another-tag
+---
+```
+
+**Plan Structure**:
+- Use status emojis: 📌 BACKLOG, ⏳ IN PROGRESS, ✅ COMPLETED
+- Include observations and relations sections
+- Reference source files and implementations
+- Update status as work progresses
+
 ## Distribution
 
 This project uses Homebrew for distribution:
