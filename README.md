@@ -1,6 +1,6 @@
 # Fluent Toolkit (`ftk`)
 
-**An opinionated toolkit for supercharging your agentic coding workflow**
+**An opinionated toolkit for agentic engineers**
 
 Fluent Toolkit streamlines the setup and configuration of Claude Code and its ecosystem of MCP (Model Context Protocol) servers, transforming the initial setup from a manual, error-prone process into a guided, intelligent experience.
 
@@ -13,6 +13,7 @@ Whether you're a workshop participant looking to apply what you've learned, or a
 ## Why Fluent Toolkit?
 
 Setting up Claude Code with MCP servers manually involves:
+
 - Finding and configuring multiple MCP servers
 - Managing API keys and secrets across different services
 - Understanding which MCP servers work well together
@@ -20,6 +21,7 @@ Setting up Claude Code with MCP servers manually involves:
 - Risking credential exposure in configuration files
 
 Fluent Toolkit eliminates these pain points by providing:
+
 - **Intelligent Setup Wizard**: Guided configuration with smart prompts for required credentials
 - **Secure Secrets Management**: Git-ignored environment files with automatic injection
 - **Opinionated Best Practices**: Curated MCP server combinations that work well together
@@ -35,6 +37,7 @@ ftk init
 ```
 
 Walk through an interactive setup process that:
+
 - Detects your project type and suggests relevant MCP servers
 - **Checks system dependencies** (e.g., won't install uvx-based servers without uv)
 - Prompts for required API keys (EXA_API_KEY, Firecrawl API, etc.)
@@ -44,6 +47,7 @@ Walk through an interactive setup process that:
 ### ✅ Smart Dependency Checking
 
 Fluent Toolkit validates your system environment before installing MCP servers:
+
 - Checks for required runtimes (Node.js, Python, uv, etc.)
 - Warns about missing dependencies before configuration
 - Suggests installation commands for missing tools
@@ -54,6 +58,7 @@ For example, it won't attempt to install a `uvx`-based server unless `uv` is alr
 ### 🔐 Secrets Management
 
 Unlike the basic `claude mcp add` command, Fluent Toolkit:
+
 - Stores credentials in a `.env` file (automatically gitignored)
 - Keeps `.mcp.json` free of sensitive information
 - Uses dotenv-cli to securely inject environment variables at runtime
@@ -62,6 +67,7 @@ Unlike the basic `claude mcp add` command, Fluent Toolkit:
 ### 📚 Curated MCP Server Library
 
 #### Core Servers (Recommended for all projects)
+
 - **Sequential Thinking**: Enhanced reasoning for complex multi-step problems
 - **Basic Memory**: Persistent note-taking and knowledge management
 - **Exa**: Powerful web search and research capabilities
@@ -70,6 +76,7 @@ Unlike the basic `claude mcp add` command, Fluent Toolkit:
 - **Context7**: Up-to-date library documentation and code examples
 
 #### Optional Servers (Project-specific)
+
 - **Notion**: Integration with Notion workspaces
 - **GitHub**: Repository management and code review
 - **Filesystem**: Extended file operations
@@ -79,6 +86,7 @@ Unlike the basic `claude mcp add` command, Fluent Toolkit:
 ### 📖 Opinionated Documentation
 
 Fluent Toolkit augments your project's `CLAUDE.md` with:
+
 - MCP server usage patterns and best practices
 - Integration examples specific to your installed servers
 - Common workflows and command patterns
@@ -87,12 +95,14 @@ Fluent Toolkit augments your project's `CLAUDE.md` with:
 ### 🤖 Future Capabilities
 
 #### Specialized Subagents (Coming Soon)
+
 - **Deep Researcher**: Background research using Exa with intelligent synthesis
 - **Writing Coach**: Content improvement and style guidance
 - **Code Reviewer**: Automated code quality analysis
 - **Documentation Assistant**: Context-aware documentation generation
 
 #### Third-Party Model Integration (Planned)
+
 - **GPT-5**: Access to OpenAI's latest models
 - **Ollama**: Local model support for privacy-sensitive projects
 - **Anthropic API**: Direct Claude API integration
@@ -112,6 +122,7 @@ Fluent Toolkit is designed for:
 ### Opinionated by Design
 
 Fluent Toolkit makes deliberate choices about:
+
 - Which MCP servers work well together
 - How to structure project documentation
 - Where to store configuration and secrets
@@ -129,6 +140,7 @@ These opinions are based on real-world usage patterns and aim to provide the bes
 ### Progressive Enhancement
 
 Start simple, add complexity as needed:
+
 1. Begin with core MCP servers for immediate productivity
 2. Add specialized servers as your needs grow
 3. Integrate custom subagents for domain-specific workflows
@@ -137,6 +149,7 @@ Start simple, add complexity as needed:
 ### Extensibility
 
 While opinionated, Fluent Toolkit is designed to grow with you:
+
 - Easy addition of new MCP servers
 - Custom subagent integration
 - Plugin architecture for community contributions
@@ -158,6 +171,7 @@ ftk init
 ```
 
 Follow the interactive wizard to:
+
 1. Select MCP servers to install
 2. Provide necessary API credentials
 3. Configure project-specific settings
