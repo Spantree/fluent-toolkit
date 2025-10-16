@@ -5,6 +5,7 @@ MCP server setup toolkit for Claude Code. Helps developers quickly configure and
 ## Project Overview
 
 This is a Deno-based CLI tool that:
+
 - Provides an interactive wizard for selecting and configuring MCP servers
 - Manages secrets securely via `.env.mcp.secrets`
 - Generates `.mcp.json` configuration for Claude Code
@@ -18,6 +19,7 @@ This is a Deno-based CLI tool that:
 All commits MUST follow Conventional Commits with 50/72 rule:
 
 **Format:**
+
 ```
 type(scope): subject line max 50 chars
 
@@ -28,6 +30,7 @@ Optional footer for breaking changes or issue references.
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -39,6 +42,7 @@ Optional footer for breaking changes or issue references.
 - `ci`: CI/CD changes
 
 **Scopes:**
+
 - `init`: Init command
 - `registry`: Server registry
 - `config`: Configuration management
@@ -49,6 +53,7 @@ Optional footer for breaking changes or issue references.
 - `release`: Release automation
 
 **Examples:**
+
 ```
 feat(registry): add modular server architecture
 
@@ -101,6 +106,7 @@ registry/mcp-servers/sequentialthinking/
 ### Lifecycle Methods
 
 Servers implement:
+
 - `precheck(ctx)` - Verify dependencies
 - `configure(ctx)` - Collect secrets/config
 - `install(ctx)` - Generate MCP config
@@ -109,6 +115,7 @@ Servers implement:
 ### Context Directory (Optional)
 
 The context directory feature allows MCP servers to store data:
+
 - Default name: `context/` (user-configurable)
 - Gitignored by default
 - Servers can opt-in to git exposure via `exposeContextToGit: true`
@@ -117,6 +124,7 @@ The context directory feature allows MCP servers to store data:
 ## Distribution
 
 This project uses Homebrew for distribution:
+
 - Formula lives in `Formula/fluent-toolkit.rb`
 - No separate homebrew-tap repository needed
 - Binaries compiled via `deno task compile:all`
@@ -145,11 +153,13 @@ All features MUST be developed in dedicated feature branches following this nami
 **Pattern**: `feat/{issue-number}-{short-description}`
 
 **Examples**:
+
 - `feat/001-add-claude-code-installation-and-version-checks`
 - `feat/002-add-notion-mcp-server-support`
 - `feat/006-pin-mcp-server-versions`
 
 **Workflow**:
+
 1. Create branch from `main`: `git checkout -b feat/XXX-description`
 2. Make changes and commit following commit message convention
 3. Push branch: `git push -u origin feat/XXX-description`
@@ -174,6 +184,53 @@ All features MUST be developed in dedicated feature branches following this nami
 4. Commit and push formula changes
 
 See `docs/quickstart.md` for detailed instructions.
+
+## Basic Memory Conventions
+
+When using Basic Memory MCP for project notes and plans:
+
+**File Naming**:
+- Basic Memory auto-generates filenames from the `title` field
+- Spaces become hyphens, but case is preserved (e.g., "Issue 1" → "Issue 1-.md")
+- For kebab-case filenames, use lowercase hyphenated titles: `"issue-1-claude-code-checks"`
+- Title Case is fine for display but results in mixed-case filenames
+
+**Best Practice for Plan Notes**:
+```bash
+# Good: lowercase-hyphenated title for clean kebab-case filename
+uvx basic-memory tool write-note \
+  --project fluent-toolkit \
+  --folder plans \
+  --title "issue-1-claude-code-checks" \
+  --tags "init,version-check"
+
+# Acceptable: Title Case for readability (filename will be "Issue 1- Add...md")
+uvx basic-memory tool write-note \
+  --project fluent-toolkit \
+  --folder plans \
+  --title "Issue 1: Add Claude Code Checks" \
+  --tags "init,version-check"
+```
+
+**Frontmatter Requirements**:
+```yaml
+---
+kind: Plan  # or Note, Guide, etc.
+created_at: 2025-10-16T15:00:00.000Z
+status: active  # draft, active, complete
+issue_permalink: https://github.com/org/repo/issues/1
+pr_permalink: https://github.com/org/repo/pull/10
+tags:
+  - kebab-case-tag
+  - another-tag
+---
+```
+
+**Plan Structure**:
+- Use status emojis: 📌 BACKLOG, ⏳ IN PROGRESS, ✅ COMPLETED
+- Include observations and relations sections
+- Reference source files and implementations
+- Update status as work progresses
 
 ## Resources
 

@@ -17,7 +17,7 @@ await new Command()
   .version(VERSION)
   .description(
     "Fluent Toolkit - An opinionated toolkit for agentic engineers\n" +
-      "From the Fluent Workshop - https://fluentwork.shop"
+      "From the Fluent Workshop - https://fluentwork.shop",
   )
   .globalOption("-v, --verbose", "Enable verbose output")
   // Init command
@@ -31,7 +31,7 @@ await new Command()
       force: options.force,
       skipValidation: options.skipValidation,
       servers: options.servers,
-      noPrompt: options.noPrompt,
+      noPrompt: !options.prompt, // Cliffy's --no-prompt becomes prompt: false
     };
 
     await InitCommand.execute(initOptions);
