@@ -7,9 +7,47 @@ This guide provides step-by-step instructions for testing the HEAD installation 
 ## Prerequisites
 
 - Git installed
-- Deno installed
+- Deno installed (required for HEAD builds)
 - Homebrew installed (macOS)
 - Clean test directory
+
+## Installation Methods
+
+There are two ways to install ftk from HEAD:
+
+### Method 1: From Tap (Recommended)
+
+If you have the `spantree/fluent-toolkit` tap installed:
+
+```bash
+# Check if tap is installed
+brew tap
+
+# If spantree/fluent-toolkit is listed, uninstall current version
+brew uninstall fluent-toolkit
+
+# Update tap to get latest formula
+brew update
+
+# Install HEAD from tap
+brew install --HEAD spantree/fluent-toolkit/fluent-toolkit
+```
+
+### Method 2: From Local Formula
+
+If you're testing local changes without a tap:
+
+```bash
+# First, remove tap if installed (prevents conflicts)
+brew untap spantree/fluent-toolkit
+
+# Install from local formula
+cd ~/src/spantree-fluent/fluent-toolkit
+brew install --HEAD ./Formula/fluent-toolkit.rb
+
+# Re-add tap when done testing
+brew tap spantree/fluent-toolkit https://github.com/spantree/homebrew-fluent-toolkit.git
+```
 
 ## Test Scenario: Clean Project Installation
 
@@ -31,21 +69,31 @@ git commit -m "Initial commit"
 
 ### Step 2: Install fluent-toolkit from HEAD
 
-```bash
-# Install from the main branch using Homebrew
-brew install --HEAD Formula/fluent-toolkit.rb
+Choose one of the installation methods above based on your setup.
+
+**Expected Result**: Installation completes successfully with Deno compiling the binary from source
+
+**Build Output Example**:
+
+```
+==> Cloning https://github.com/spantree/fluent-toolkit.git
+==> Checking out branch main
+==> deno task compile
+Check file:///path/to/fluent-toolkit/src/main.ts
+Compile file:///path/to/fluent-toolkit/src/main.ts to bin/ftk
 ```
 
-**Expected Result**: Installation completes successfully with Deno compiling the binary
-
 **Verification**:
+
 ```bash
 # Check installation
 ftk --version
 
-# Should output something like:
-# fluent-toolkit 0.1.0-HEAD
+# Should output:
+# ftk 0.1.0
 ```
+
+**Note**: The version won't show "HEAD" suffix - Deno compilation doesn't include git metadata. To verify HEAD installation, check the build output above shows "Cloning" and "Checking out branch main".
 
 ### Step 3: Run ftk init
 
@@ -55,6 +103,7 @@ ftk init
 ```
 
 **Interactive Steps**:
+
 1. When prompted "Select MCP servers to install", use arrow keys to select:
    - basic-memory (core)
    - context7 (optional) - if you have API key
@@ -64,6 +113,7 @@ ftk init
 3. For context7 (if selected), enter your API key when prompted
 
 **Expected Results**:
+
 - ✅ Dependency checks pass
 - ✅ Secrets saved to `.env.mcp.secrets`
 - ✅ Configuration written to `.mcp.json`
@@ -164,16 +214,54 @@ Use this checklist to verify all functionality:
 
 ## Troubleshooting
 
+### "No available formula" Warning
+
+If you see:
+
+```
+Warning: No available formula with the name "fluent-toolkit"
+```
+
+**Cause**: Trying to install from local file when tap is already installed
+
+**Solution**: Use tap-based installation instead:
+
+```bash
+brew install --HEAD spantree/fluent-toolkit/fluent-toolkit
+```
+
+Or remove tap first if testing local changes:
+
+```bash
+brew untap spantree/fluent-toolkit
+brew install --HEAD ./Formula/fluent-toolkit.rb
+```
+
 ### Installation Fails
 
 ```bash
-# Check Homebrew logs
-brew install --HEAD --verbose Formula/fluent-toolkit.rb
+# Check Homebrew logs with verbose output
+brew install --HEAD --verbose spantree/fluent-toolkit/fluent-toolkit
 
 # Common issues:
-# - Deno not found: Install Deno first
+# - Deno not found: Install Deno first (brew install deno)
 # - Git not found: Install Git first
 # - Network issues: Check internet connection
+# - Permission issues: Check Homebrew permissions
+```
+
+### Build Compilation Errors
+
+If Deno compilation fails:
+
+```bash
+# Check Deno version
+deno --version
+
+# Should be 1.40.0 or higher
+
+# Update Deno if needed
+brew upgrade deno
 ```
 
 ### ftk init Fails
@@ -251,6 +339,7 @@ brew uninstall fluent-toolkit
 ## Success Criteria
 
 All tests pass when:
+
 1. Installation completes without errors
 2. All expected files are created
 3. Files contain valid content
