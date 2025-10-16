@@ -3,7 +3,6 @@
  * Provides common patterns and default implementations
  */
 
-// Removed unused import
 import type {
   ConfigureResult,
   InstallResult,
@@ -13,7 +12,17 @@ import type {
   ServerMetadata,
   ValidationResult,
 } from "../types/lifecycle.ts";
-import { commandExists, compareVersions, getCommandVersion, getInstallCommand } from "./utils/command.ts";
+import type { MCPServerEntry } from "../types/index.ts";
+import type { FtkLockFile } from "../types/lockfile.ts";
+import {
+  commandExists,
+  compareVersions,
+  getCommandVersion,
+  getInstallCommand,
+} from "./utils/command.ts";
+import { fetchLatestVersion } from "../utils/package-version.ts";
+import { getServerLock, readLockFile, updateServerLock, writeLockFile } from "../utils/lockfile.ts";
+import { satisfiesConstraint } from "../utils/semver.ts";
 
 export interface DependencyRequirement {
   command: string;
@@ -30,6 +39,89 @@ export interface SecretRequirement {
 
 export abstract class BaseMCPServer implements MCPServerModule {
   abstract metadata: ServerMetadata;
+
+  /**
+   * Resolve the version to use for this server
+   * Checks lock file first, then queries registry for latest matching constraint
+   * @param ctx - Lifecycle context
+   * @param lockFile - Current lock file (optional, will read if not provided)
+   */
+  async resolveVersion(
+    ctx: LifecycleContext,
+    lockFile?: FtkLockFile,
+  ): Promise<string | undefined> {
+    // Priority 1: Explicit version in metadata (non-constraint)
+    if (
+      this.metadata.version && this.metadata.version !== "latest" &&
+      !this.metadata.version.match(/^[\^~><]/)
+    ) {
+      return this.metadata.version;
+    }
+
+    // Priority 2: Check lock file for resolved version
+    if (lockFile) {
+      const serverLock = getServerLock(lockFile, this.metadata.id);
+      if (serverLock) {
+        // Validate that locked version still satisfies constraint
+        const constraint = this.metadata.packageVersion ||
+          this.metadata.version || "latest";
+
+        if (
+          constraint === "latest" ||
+          satisfiesConstraint(serverLock.packageResolution, constraint)
+        ) {
+          ctx.info(
+            `Using locked version: ${serverLock.packageResolution} (constraint: ${constraint})`,
+          );
+          return serverLock.packageResolution;
+        }
+
+        ctx.warning(
+          `Locked version ${serverLock.packageResolution} no longer satisfies constraint ${constraint}, resolving new version`,
+        );
+      }
+    }
+
+    // Priority 3: Query package registry for latest matching constraint
+    if (this.metadata.packageName && this.metadata.packageRegistry) {
+      try {
+        const versionInfo = await fetchLatestVersion(
+          this.metadata.packageName,
+          this.metadata.packageRegistry,
+        );
+
+        if (versionInfo.latestVersion) {
+          const constraint = this.metadata.packageVersion ||
+            this.metadata.version || "latest";
+
+          // Validate against constraint if specified
+          if (
+            constraint !== "latest" &&
+            !satisfiesConstraint(versionInfo.latestVersion, constraint)
+          ) {
+            ctx.warning(
+              `Latest version ${versionInfo.latestVersion} does not satisfy constraint ${constraint}`,
+            );
+            return undefined;
+          }
+
+          return versionInfo.latestVersion;
+        }
+
+        console.warn(
+          `Failed to fetch latest version for ${this.metadata.packageName}: ${versionInfo.error}`,
+        );
+      } catch (error) {
+        console.warn(
+          `Error resolving version for ${this.metadata.name}:`,
+          error,
+        );
+      }
+    }
+
+    // Fall back to undefined (let package manager use latest)
+    return undefined;
+  }
 
   /**
    * Override to specify system dependencies
@@ -53,10 +145,13 @@ export abstract class BaseMCPServer implements MCPServerModule {
 
   /**
    * Override to provide custom MCP config generation
+   * @param secrets - Configured secrets (usually empty as they're in .env.mcp.secrets)
+   * @param version - Resolved version to use (from resolveVersion())
    */
   protected abstract generateMcpConfig(
-    secrets: Record<string, string>
-  ): { command: string; args?: string[]; env?: Record<string, string> };
+    secrets: Record<string, string>,
+    version?: string,
+  ): MCPServerEntry;
 
   /**
    * Default precheck implementation
@@ -156,12 +251,42 @@ export abstract class BaseMCPServer implements MCPServerModule {
 
   /**
    * Default install implementation
-   * Generates MCP config using generateMcpConfig()
+   * Generates MCP config using generateMcpConfig() and updates lock file
    */
-  async install(_ctx: LifecycleContext): Promise<InstallResult> {
+  async install(ctx: LifecycleContext): Promise<InstallResult> {
     try {
+      // Read existing lock file
+      const projectPath = ctx.getProjectPath();
+      const lockFile = await readLockFile(projectPath);
+
+      // Resolve version (checks lock file, then queries registry)
+      const resolvedVersion = await this.resolveVersion(ctx, lockFile);
+
+      if (resolvedVersion && resolvedVersion !== this.metadata.version) {
+        ctx.info(`Using version: ${resolvedVersion}`);
+      }
+
+      // Update lock file if we have package registry info
+      if (
+        resolvedVersion && this.metadata.packageName &&
+        this.metadata.packageRegistry
+      ) {
+        // Pin exact version initially (users can manually edit to add ^ or ~)
+        const constraint = this.metadata.packageVersion || resolvedVersion;
+
+        const updatedLockFile = updateServerLock(lockFile, this.metadata.id, {
+          packageName: this.metadata.packageName,
+          registry: this.metadata.packageRegistry,
+          packageConstraint: constraint,
+          packageResolution: resolvedVersion,
+        });
+
+        await writeLockFile(projectPath, updatedLockFile);
+        ctx.success(`Updated lock file: ${this.metadata.id}@${resolvedVersion}`);
+      }
+
       const secrets = {}; // Secrets are already saved by this point
-      const mcpConfig = this.generateMcpConfig(secrets);
+      const mcpConfig = this.generateMcpConfig(secrets, resolvedVersion);
 
       return {
         success: true,
@@ -171,7 +296,9 @@ export abstract class BaseMCPServer implements MCPServerModule {
     } catch (error) {
       return {
         success: false,
-        message: `Failed to generate configuration: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Failed to generate configuration: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       };
     }
   }
@@ -180,11 +307,11 @@ export abstract class BaseMCPServer implements MCPServerModule {
    * Default validate implementation (optional)
    * Returns success by default - override for custom validation
    */
-  async validate(_ctx: LifecycleContext): Promise<ValidationResult> {
-    return {
+  validate(_ctx: LifecycleContext): Promise<ValidationResult> {
+    return Promise.resolve({
       success: true,
       message: "No validation checks defined",
-    };
+    });
   }
 
   /**
@@ -201,7 +328,7 @@ export abstract class BaseMCPServer implements MCPServerModule {
   /**
    * Helper: Read CLAUDE.md content from file
    */
-  protected async readClaudeMdFile(): Promise<string> {
+  protected readClaudeMdFile(): string {
     // Get the directory where this module is defined
     // This is a bit tricky - we'll need to pass the path from the concrete class
     throw new Error("readClaudeMdFile must be implemented by concrete class");

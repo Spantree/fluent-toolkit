@@ -15,11 +15,13 @@ Homebrew will find and make available all `.rb` formula files in this directory.
 ## Installing
 
 **One-liner:**
+
 ```bash
 brew install spantree/fluent-toolkit/fluent-toolkit
 ```
 
 **Or tap first:**
+
 ```bash
 brew tap spantree/fluent-toolkit git@github.com:spantree/fluent-toolkit.git
 brew install fluent-toolkit

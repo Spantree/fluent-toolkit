@@ -3,6 +3,7 @@
 ## Research Date: October 2025
 
 ### Topics Researched
+
 1. Claude Code Plugins (released Oct 2025)
 2. Claude Agent SDK (renamed from Claude Code SDK)
 3. CLAUDE.md file reference handling
@@ -12,25 +13,30 @@
 ## 1. CLAUDE.md File References
 
 ### Critical Discovery
+
 **Markdown links in CLAUDE.md are NOT followed by Claude Code.**
 
 ```markdown
 # ❌ Does NOT work (treated as plain text):
+
 [MCP Servers](.ftk/docs/mcp-servers.md)
 
 # ✅ DOES work (explicitly includes file):
+
 @.ftk/docs/mcp-servers.md
 ```
 
 ### How Claude Code Loads Files
 
 **Automatic Loading**:
+
 - `CLAUDE.md` files in current directory
 - `CLAUDE.md` files in parent directories (hierarchical)
 - `CLAUDE.md` files in child directories (when relevant)
 - Content is read **inline only**
 
 **Explicit Loading** (@ syntax):
+
 - `@path/to/file.md` - Includes full file contents
 - `@path/to/directory/` - Shows file listing (NOT contents)
 - Also loads associated `CLAUDE.md` files from that path
@@ -38,30 +44,36 @@
 ### Best Practices
 
 **File Organization**:
+
 - Keep `CLAUDE.md` files concise (100-200 lines)
 - Use nested `CLAUDE.md` in subdirectories for modular context
 - Root `CLAUDE.md` for project-wide conventions
 - Subdirectory `CLAUDE.md` for domain-specific context
 
 **Content Structure**:
+
 ```markdown
 # Root CLAUDE.md
+
 <system_context>
 Project-level conventions and patterns
 </system_context>
 
 <file_map>
+
 - src/auth/ - Authentication system
 - src/api/ - API endpoints
 - docs/ - Extended documentation
-</file_map>
+  </file_map>
 
 # For detailed docs, use @ syntax:
+
 @docs/testing-guidelines.md
 @docs/architecture-decisions.md
 ```
 
 **Semantic Tags** (recommended):
+
 - `<system_context>` - Project conventions
 - `<file_map>` - Directory structure guide
 - `<patterns>` - Code patterns and examples
@@ -69,6 +81,7 @@ Project-level conventions and patterns
 - `<workflows>` - Common workflows
 
 ### Limitations
+
 - No markdown link resolution
 - No wildcard/glob patterns
 - Text files only (binary formats not supported)
@@ -78,33 +91,44 @@ Project-level conventions and patterns
 ### Impact on ftk Design
 
 **Original Plan (doesn't work)**:
+
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 See [MCP Server Details](.ftk/docs/mcp-servers.md)
+
 <!-- ftk:end:mcp-overview -->
 ```
 
 **Revised Approach (3 options)**:
 
 **Option A: Inline with markers** (Recommended)
+
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 ## MCP Servers
 
 This project uses the following servers:
+
 - Sequential Thinking: Enhanced reasoning
 - Exa: Web search and research
+
 <!-- ftk:end:mcp-overview -->
 ```
 
 **Option B: @ syntax references**
+
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 @.ftk/docs/mcp-servers.md
+
 <!-- ftk:end:mcp-overview -->
 ```
 
 **Option C: Nested CLAUDE.md**
+
 ```
 .ftk/
   CLAUDE.md  <- ftk-specific context
@@ -122,15 +146,18 @@ This project uses the following servers:
 ## 2. Claude Code Plugins
 
 ### Overview
+
 Released October 2025, plugins are the **official way to bundle and share Claude Code customizations**.
 
 ### What Plugins Can Include
+
 - **Slash commands**: Custom shortcuts
 - **Subagents**: Specialized agents
 - **MCP servers**: Tool/data integrations
 - **Hooks**: Workflow customizations
 
 ### Plugin Structure
+
 ```
 my-plugin/
   .claude-plugin/
@@ -142,22 +169,27 @@ my-plugin/
 ```
 
 ### Distribution
+
 **Plugin Marketplaces**:
+
 - Any git repository with `.claude-plugin/marketplace.json`
 - GitHub repos work out of the box
 - Community-driven (anyone can create)
 
 **Installation**:
+
 ```bash
 /plugin marketplace add user/repo
 /plugin install plugin-name
 ```
 
 **Management**:
+
 - Toggle on/off to manage context
 - Enables/disables all bundled components
 
 ### Existing Examples
+
 - [Dan Ávila's marketplace](https://www.aitmpl.com/plugins) - DevOps, docs, testing
 - [Seth Hobson's agents](https://github.com/wshobson/agents) - 80+ subagents
 - [Anthropic examples](https://github.com/anthropics/claude-code) - PR reviews, security
@@ -165,6 +197,7 @@ my-plugin/
 ### Impact on ftk Design
 
 **Evolution Path**:
+
 ```
 Phase 1: MCP server setup tool
   ↓ ftk init installs MCP servers
@@ -179,6 +212,7 @@ Phase 3: Fluent Workshop marketplace
 ```
 
 **New Capabilities**:
+
 ```typescript
 // ftk could generate plugins:
 ftk plugin create my-setup
@@ -193,6 +227,7 @@ ftk plugin publish
 ```
 
 **Benefits**:
+
 - **Shareability**: Easy distribution across teams
 - **Versioning**: Plugin versions separate from ftk versions
 - **Context Management**: Users toggle plugins on/off
@@ -203,12 +238,15 @@ ftk plugin publish
 ## 3. Claude Agent SDK
 
 ### Overview
+
 Renamed from "Claude Code SDK" to reflect broader use cases beyond coding.
 
 ### Purpose
+
 General-purpose agent framework that powers Claude Code and other agent applications.
 
 ### Agent Loop Pattern
+
 ```
 Gather Context → Take Action → Verify Work → Repeat
 ```
@@ -216,23 +254,27 @@ Gather Context → Take Action → Verify Work → Repeat
 ### Core Capabilities
 
 **Context Gathering**:
+
 - File system as searchable context (grep, tail, etc.)
 - Semantic search (vectors)
 - Subagents (parallel + isolated context)
 - Auto-compaction (context management)
 
 **Action Execution**:
+
 - Custom tools (primary actions)
 - Bash commands (flexible execution)
 - Code generation (precise, composable)
 - MCP integrations (external services)
 
 **Work Verification**:
+
 - Rule-based validation (linting, type checking)
 - Visual feedback (screenshots, renders)
 - LLM-as-judge (fuzzy evaluation)
 
 ### Subagents
+
 - **Parallelization**: Run multiple tasks simultaneously
 - **Context Isolation**: Each subagent has own context window
 - **Result Filtering**: Only return relevant excerpts to orchestrator
@@ -242,6 +284,7 @@ Gather Context → Take Action → Verify Work → Repeat
 **Future Subagents Should Use SDK**:
 
 **Deep Researcher**:
+
 ```typescript
 // Built with Claude Agent SDK
 - Gather: Search web via Exa MCP
@@ -251,6 +294,7 @@ Gather Context → Take Action → Verify Work → Repeat
 ```
 
 **Writing Coach**:
+
 ```typescript
 // Built with Claude Agent SDK
 - Gather: Read document drafts
@@ -260,11 +304,13 @@ Gather Context → Take Action → Verify Work → Repeat
 ```
 
 **Distribution**:
+
 - Package SDK-based agents as plugins
 - Include in Fluent Workshop marketplace
 - Users install via `/plugin install deep-researcher`
 
 **Integration**:
+
 ```typescript
 // ftk could scaffold Agent SDK projects
 ftk agent create my-agent
@@ -281,6 +327,7 @@ ftk agent create my-agent
 ### 1. CLAUDE.md Strategy
 
 **Hybrid Approach**:
+
 ```
 root/
   CLAUDE.md                    # Project conventions + @.ftk/CLAUDE.md
@@ -292,20 +339,26 @@ root/
 ```
 
 **Marker Strategy**:
+
 ```markdown
 <!-- ftk:begin:overview -->
+
 Inline content that ftk manages
+
 <!-- ftk:end:overview -->
 
 <!-- ftk:begin:extended-docs -->
+
 @.ftk/docs/mcp-servers.md
 @.ftk/docs/workflows.md
+
 <!-- ftk:end:extended-docs -->
 ```
 
 ### 2. Plugin Generation (Future)
 
 Add to roadmap:
+
 ```
 Phase 2: Plugin Generator
 - [ ] ftk plugin create - Generate .claude-plugin/ structure
@@ -317,6 +370,7 @@ Phase 2: Plugin Generator
 ### 3. Agent SDK Integration (Future)
 
 Add to roadmap:
+
 ```
 Phase 3: Agent Development
 - [ ] ftk agent create - Scaffold Agent SDK project
@@ -328,6 +382,7 @@ Phase 3: Agent Development
 ### 4. Registry Updates Strategy
 
 **Use Git Sparse Checkout** (as suggested):
+
 ```bash
 # ~/.ftk/registry/ is a sparse checkout
 git clone --filter=blob:none --sparse \
@@ -339,6 +394,7 @@ git sparse-checkout set registry/
 ```
 
 **Update Flow**:
+
 ```bash
 ftk update-registry
   → cd ~/.ftk/registry && git pull
@@ -347,6 +403,7 @@ ftk update-registry
 ```
 
 **Versioning**:
+
 ```
 Binary: 1.2.3
 Registry: independent versioning
@@ -359,15 +416,19 @@ Registry: independent versioning
 ## Open Questions (Resolved)
 
 ### ~~1. CLAUDE.md file references~~
+
 **RESOLVED**: Use inline content with markers + @ syntax for extended docs.
 
 ### ~~2. Validation security~~
+
 **RESOLVED**: Show code + confirm (as originally suggested).
 
 ### ~~3. Registry updates~~
+
 **RESOLVED**: Use git sparse checkout to ~/.ftk/registry.
 
 ### 4. Subagent architecture
+
 **RESOLVED**: Use Claude Agent SDK + package as plugins.
 
 ---

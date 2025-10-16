@@ -22,6 +22,7 @@ git push origin v0.2.0
 ### 2. GitHub Actions Builds and Updates Formula
 
 The workflow triggers on tags and automatically:
+
 - Compiles binaries for macOS (arm64/x86_64) and Linux
 - Calculates SHA256 checksums
 - Creates GitHub release with binaries
@@ -32,6 +33,7 @@ The workflow triggers on tags and automatically:
 Check progress at: https://github.com/spantree/fluent-toolkit/actions
 
 Or use `gh` CLI:
+
 ```bash
 gh run watch
 ```
@@ -55,6 +57,7 @@ For local testing before pushing a tag:
 ```
 
 This locally:
+
 - Updates version in deno.json
 - Compiles binaries
 - Calculates checksums
@@ -66,11 +69,13 @@ Use this to verify builds work before creating the actual release tag. The GitHu
 ### GitHub Actions Failed
 
 Check logs:
+
 ```bash
 gh run view --log
 ```
 
 Common issues:
+
 - Type errors: Run `deno check src/main.ts` locally
 - Compilation errors: Test `deno task compile:all`
 - Formula update failed: Check GitHub Actions logs for git push errors
@@ -94,6 +99,7 @@ Body wrapped at 72 characters.
 ```
 
 Examples:
+
 - `feat(registry): add new MCP server`
 - `fix(cli): handle missing config gracefully`
 - `chore(formula): update checksums for v0.2.0`

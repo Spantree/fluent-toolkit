@@ -3,7 +3,7 @@
  */
 
 // Re-export lifecycle types for convenience
-export type { MCPServerModule, ServerMetadata, LifecycleContext } from "./lifecycle.ts";
+export type { LifecycleContext, MCPServerModule, ServerMetadata } from "./lifecycle.ts";
 
 // MCP Server Metadata
 export interface MCPServer {

@@ -1,3 +1,8 @@
 .scratch/
 bin/
 dist/
+
+# MCP secrets and configuration (local only)
+.env.mcp.secrets
+.mcp.json
+.claude/

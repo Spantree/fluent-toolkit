@@ -7,11 +7,13 @@ Successfully refactored from JSON-based registry to modular TypeScript-based ser
 ### Key Changes
 
 **Before (JSON Registry)**:
+
 ```
 registry/servers.json  # All servers defined in JSON
 ```
 
 **After (Modular Structure)**:
+
 ```
 registry/
 └── mcp-servers/

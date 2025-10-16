@@ -3,9 +3,8 @@
  * Provides user-friendly CLI prompts using Cliffy
  */
 
-import { Confirm, Input, Select, Checkbox } from "@cliffy/prompt";
+import { Checkbox, Confirm, Input, Select } from "@cliffy/prompt";
 import { colors } from "@cliffy/ansi/colors";
-import type { MCPServer } from "../types/index.ts";
 
 export class Prompts {
   /**
@@ -23,7 +22,7 @@ export class Prompts {
    */
   static async input(
     message: string,
-    options?: { default?: string; required?: boolean }
+    options?: { default?: string; required?: boolean },
   ): Promise<string> {
     return await Input.prompt({
       message,
@@ -57,7 +56,7 @@ export class Prompts {
    */
   static async select<T extends string>(
     message: string,
-    options: Array<{ value: T; name: string }>
+    options: Array<{ value: T; name: string }>,
   ): Promise<T> {
     return await Select.prompt({
       message,
@@ -70,7 +69,12 @@ export class Prompts {
    */
   static async multiSelect(
     message: string,
-    servers: MCPServer[]
+    servers: Array<{
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+    }>,
   ): Promise<string[]> {
     const options = servers.map((server) => ({
       name: `${server.name} - ${server.description}`,
@@ -89,10 +93,10 @@ export class Prompts {
    */
   static async requestValidationPermission(): Promise<boolean> {
     console.log(
-      colors.cyan("\n🔍 ftk needs to run validation checks to ensure dependencies are met.")
+      colors.cyan("\n🔍 ftk needs to run validation checks to ensure dependencies are met."),
     );
     console.log(
-      colors.dim("This will check for required tools like node, python, uv, etc.\n")
+      colors.dim("This will check for required tools like node, python, uv, etc.\n"),
     );
 
     return await this.confirm("Allow validation checks?", true);
@@ -103,7 +107,7 @@ export class Prompts {
    */
   static async confirmInstall(
     dependency: string,
-    command: string
+    command: string,
   ): Promise<boolean> {
     console.log(colors.yellow(`\n⚠️  ${dependency} is not installed`));
     console.log(colors.dim(`To install, run: ${command}\n`));
@@ -117,8 +121,8 @@ export class Prompts {
   static async selectServerScope(serverId: string): Promise<"user" | "project"> {
     console.log(
       colors.cyan(
-        `\n📦 ${serverId} is already configured in your user-level MCP config`
-      )
+        `\n📦 ${serverId} is already configured in your user-level MCP config`,
+      ),
     );
 
     const choice = await this.select(
@@ -126,7 +130,7 @@ export class Prompts {
       [
         { value: "user", name: "Use user-level configuration" },
         { value: "project", name: "Override with project-specific configuration" },
-      ]
+      ],
     );
 
     return choice;
@@ -138,12 +142,12 @@ export class Prompts {
   static async requestSecret(
     name: string,
     promptMessage: string,
-    scope: "user" | "project"
+    scope: "user" | "project",
   ): Promise<string> {
     console.log(
       colors.cyan(
-        `\n🔐 ${name} is required for this server (scope: ${scope})`
-      )
+        `\n🔐 ${name} is required for this server (scope: ${scope})`,
+      ),
     );
 
     return await this.secret(promptMessage);
@@ -155,18 +159,18 @@ export class Prompts {
   static async requestContextDirName(defaultName = "context"): Promise<string> {
     console.log(
       colors.cyan(
-        "\n📁 AI assistants need a folder for context and resources"
-      )
+        "\n📁 AI assistants need a folder for context and resources",
+      ),
     );
     console.log(
       colors.dim(
-        "This folder will store data for MCP servers like basic-memory, indexes, etc."
-      )
+        "This folder will store data for MCP servers like basic-memory, indexes, etc.",
+      ),
     );
 
     const customName = await this.confirm(
       `Use default folder name "${defaultName}"?`,
-      true
+      true,
     );
 
     if (customName) {

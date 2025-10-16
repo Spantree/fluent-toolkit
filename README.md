@@ -33,6 +33,7 @@ ftk init
 ```
 
 The interactive wizard will:
+
 - Verify Claude Code is installed and up to date
 - Let you select which MCP servers to install
 - Check for required system dependencies
@@ -71,11 +72,13 @@ Use `--skip-checks` to bypass the Claude Code version check (useful for CI/CD or
 ### Available MCP Servers
 
 **Core Servers:**
+
 - **Sequential Thinking** - Enhanced reasoning for complex problems
 - **Context7** - Up-to-date library documentation and code examples
 - **Basic Memory** - Persistent memory and note-taking across sessions
 
 **Optional Servers:**
+
 - **Exa** - Web search and research (requires API key)
 
 More servers coming soon!

@@ -34,31 +34,43 @@ fluent-toolkit/
 │   └── types/                  # TypeScript definitions
 │       └── index.ts            # Type definitions
 ├── registry/
-│   └── servers.json            # MCP server definitions
-├── templates/
-│   ├── env.template            # .env.mcp.secrets template
-│   └── claude-md/              # CLAUDE.md section templates
-│       └── mcp-overview.md
+│   ├── index.ts                # Registry discovery
+│   └── mcp-servers/            # Modular server definitions
+│       ├── sequentialthinking/
+│       ├── context7/
+│       ├── exa/
+│       └── basic-memory/
+├── Formula/                    # Homebrew formula
+│   └── fluent-toolkit.rb
+├── docs/                       # Documentation
+│   ├── README.md               # Documentation index
+│   ├── archive/                # Historical documents
+│   │   ├── design.md           # Design decisions
+│   │   ├── research.md         # Research notes
+│   │   └── refactoring.md      # Refactoring summary
+│   └── ...
 ├── deno.json                   # Deno configuration
-├── README.md                   # Marketing documentation
-├── DESIGN.md                   # Design decisions
-├── RESEARCH_FINDINGS.md        # Research notes
-└── DEVELOPMENT.md              # This file
+├── README.md                   # Project documentation
+├── CLAUDE.md                   # AI assistant instructions
+└── context/                    # AI context directory (gitignored)
 ```
 
 ## Development Commands
 
 ### Run in development mode
+
 ```bash
 deno task dev
 ```
 
 ### Run ftk init
+
 ```bash
 deno task dev init
 ```
 
 ### Run with options
+
 ```bash
 deno task dev init --help
 deno task dev init --force
@@ -67,6 +79,7 @@ deno task dev init --servers sequential-thinking,context7
 ```
 
 ### Compile binary
+
 ```bash
 deno task compile
 ```
@@ -74,11 +87,13 @@ deno task compile
 This creates `bin/ftk` executable.
 
 ### Format code
+
 ```bash
 deno task fmt
 ```
 
 ### Lint code
+
 ```bash
 deno task lint
 ```
@@ -88,12 +103,14 @@ deno task lint
 ### Test with a fresh project
 
 1. Create a new test directory:
+
 ```bash
 mkdir ~/test-ftk-project
 cd ~/test-ftk-project
 ```
 
 2. Run ftk init:
+
 ```bash
 cd ~/src/spantree-fluent/fluent-toolkit
 deno task dev init
@@ -102,6 +119,7 @@ deno task dev init
 3. Follow the interactive prompts to select servers and provide API keys
 
 4. Verify the generated files:
+
 ```bash
 ls -la ~/test-ftk-project
 cat ~/test-ftk-project/.mcp.json
@@ -111,6 +129,7 @@ cat ~/test-ftk-project/.ftk/config.json
 ```
 
 5. Start Claude Code and verify MCP servers load:
+
 ```bash
 cd ~/test-ftk-project
 claude
@@ -120,7 +139,7 @@ claude
 
 ### Server Registry
 
-The server registry (`registry/servers.json`) contains metadata for all available MCP servers:
+The server registry uses a modular architecture where each server is defined in its own directory under `registry/mcp-servers/`. Available MCP servers:
 
 - **sequential-thinking**: Enhanced reasoning (core)
 - **context7**: Library documentation (core)
@@ -131,10 +150,12 @@ The server registry (`registry/servers.json`) contains metadata for all availabl
 ### Configuration Strategy
 
 **Dual-layer configuration**:
+
 - User-level: `~/.ftk/config.json` (global preferences)
 - Project-level: `.ftk/config.json` (project-specific)
 
 **MCP configuration**:
+
 - `.mcp.json` in project root
 - Uses dotenv-cli wrapper for servers requiring secrets
 
@@ -150,8 +171,11 @@ Uses marker-based inline content approach (validated in test project):
 
 ```markdown
 <!-- ftk:begin:mcp-overview -->
+
 ## MCP Servers Configuration
+
 ...
+
 <!-- ftk:end:mcp-overview -->
 ```
 
@@ -160,6 +184,7 @@ This allows ftk to manage specific sections without clobbering user content.
 ## Next Steps
 
 ### Phase 2 (Enhancement)
+
 - [ ] `ftk doctor` command for diagnostics
 - [ ] Advanced validation with custom validators
 - [ ] Installation assistance (auto-run install commands)
@@ -167,16 +192,19 @@ This allows ftk to manage specific sections without clobbering user content.
 - [ ] Progress indicators for long operations
 
 ### Phase 3 (Extensibility)
+
 - [ ] `ftk update-registry` command (git sparse checkout)
 - [ ] Registry version compatibility checking
 - [ ] Custom server definitions (local registry)
 
 ### Phase 4 (Plugin Generation)
+
 - [ ] `ftk plugin create` command
 - [ ] Bundle MCP servers + slash commands + hooks
 - [ ] `ftk plugin publish` for marketplace
 
 ### Phase 5 (Agent SDK Integration)
+
 - [ ] `ftk agent create` command
 - [ ] Agent loop templates
 - [ ] Deep Researcher agent
@@ -195,8 +223,8 @@ When adding new features:
 
 ## Architecture Decisions
 
-See [DESIGN.md](./DESIGN.md) for detailed architecture decisions and rationale.
+See [archive/design.md](archive/design.md) for detailed architecture decisions and rationale.
 
 ## Research Background
 
-See [RESEARCH_FINDINGS.md](./RESEARCH_FINDINGS.md) for research on Claude Code plugins, Agent SDK, and CLAUDE.md behavior.
+See [archive/research.md](archive/research.md) for research on Claude Code plugins, Agent SDK, and CLAUDE.md behavior.

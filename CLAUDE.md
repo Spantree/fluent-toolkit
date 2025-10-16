@@ -5,6 +5,7 @@ MCP server setup toolkit for Claude Code. Helps developers quickly configure and
 ## Project Overview
 
 This is a Deno-based CLI tool that:
+
 - Provides an interactive wizard for selecting and configuring MCP servers
 - Manages secrets securely via `.env.mcp.secrets`
 - Generates `.mcp.json` configuration for Claude Code
@@ -18,6 +19,7 @@ This is a Deno-based CLI tool that:
 All commits MUST follow Conventional Commits with 50/72 rule:
 
 **Format:**
+
 ```
 type(scope): subject line max 50 chars
 
@@ -28,6 +30,7 @@ Optional footer for breaking changes or issue references.
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -39,6 +42,7 @@ Optional footer for breaking changes or issue references.
 - `ci`: CI/CD changes
 
 **Scopes:**
+
 - `init`: Init command
 - `registry`: Server registry
 - `config`: Configuration management
@@ -49,6 +53,7 @@ Optional footer for breaking changes or issue references.
 - `release`: Release automation
 
 **Examples:**
+
 ```
 feat(registry): add modular server architecture
 
@@ -86,6 +91,26 @@ chore(deps): update Deno dependencies to latest
 - Use relative links within docs/ directory
 - Archive historical documents in `docs/archive/`
 
+### Basic Memory Notes
+
+All project documentation should be stored as Basic Memory notes, not regular markdown files:
+
+**Folder Structure**:
+
+- `features/` - Feature documentation (not prefixed with issue numbers, may span multiple issues)
+- `plans/` - Issue-specific task management with status tracking (prefixed with `issue-N-`)
+- `guides/` - How-to documentation and usage instructions
+- `technologies/` - Technical documentation and architecture
+- `research/` - Cached research results
+- `meetings/` - Meeting notes
+
+**Best Practices**:
+
+- Use `related-to: [[issue-N-description]]` to link features to implementing issues
+- Format all notes with Prettier after creation
+- Include observations and relations sections
+- Use kebab-case for note titles
+
 ## Architecture
 
 ### Modular Server Registry
@@ -101,6 +126,7 @@ registry/mcp-servers/sequentialthinking/
 ### Lifecycle Methods
 
 Servers implement:
+
 - `precheck(ctx)` - Verify dependencies
 - `configure(ctx)` - Collect secrets/config
 - `install(ctx)` - Generate MCP config
@@ -109,6 +135,7 @@ Servers implement:
 ### Context Directory (Optional)
 
 The context directory feature allows MCP servers to store data:
+
 - Default name: `context/` (user-configurable)
 - Gitignored by default
 - Servers can opt-in to git exposure via `exposeContextToGit: true`
@@ -146,6 +173,7 @@ tags:
 ## Distribution
 
 This project uses Homebrew for distribution:
+
 - Formula lives in `Formula/fluent-toolkit.rb`
 - No separate homebrew-tap repository needed
 - Binaries compiled via `deno task compile:all`
@@ -174,11 +202,13 @@ All features MUST be developed in dedicated feature branches following this nami
 **Pattern**: `feat/{issue-number}-{short-description}`
 
 **Examples**:
+
 - `feat/001-add-claude-code-installation-and-version-checks`
 - `feat/002-add-notion-mcp-server-support`
 - `feat/006-pin-mcp-server-versions`
 
 **Workflow**:
+
 1. Create branch from `main`: `git checkout -b feat/XXX-description`
 2. Make changes and commit following commit message convention
 3. Push branch: `git push -u origin feat/XXX-description`
