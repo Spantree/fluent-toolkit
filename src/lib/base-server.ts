@@ -13,6 +13,7 @@ import type {
   ValidationResult,
 } from "../types/lifecycle.ts";
 import type { MCPServerEntry } from "../types/index.ts";
+import type { FtkLockFile } from "../types/lockfile.ts";
 import {
   commandExists,
   compareVersions,
@@ -20,6 +21,13 @@ import {
   getInstallCommand,
 } from "./utils/command.ts";
 import { fetchLatestVersion } from "../utils/package-version.ts";
+import {
+  getServerLock,
+  readLockFile,
+  updateServerLock,
+  writeLockFile,
+} from "../utils/lockfile.ts";
+import { satisfiesConstraint } from "../utils/semver.ts";
 
 export interface DependencyRequirement {
   command: string;
@@ -39,15 +47,47 @@ export abstract class BaseMCPServer implements MCPServerModule {
 
   /**
    * Resolve the version to use for this server
-   * Returns the hardcoded metadata.version, or queries the registry for latest
+   * Checks lock file first, then queries registry for latest matching constraint
+   * @param ctx - Lifecycle context
+   * @param lockFile - Current lock file (optional, will read if not provided)
    */
-  async resolveVersion(): Promise<string | undefined> {
-    // If version is explicitly set in metadata, use it
-    if (this.metadata.version && this.metadata.version !== "latest") {
+  async resolveVersion(
+    ctx: LifecycleContext,
+    lockFile?: FtkLockFile,
+  ): Promise<string | undefined> {
+    // Priority 1: Explicit version in metadata (non-constraint)
+    if (
+      this.metadata.version && this.metadata.version !== "latest" &&
+      !this.metadata.version.match(/^[\^~><]/)
+    ) {
       return this.metadata.version;
     }
 
-    // If package registry info is available, fetch latest version
+    // Priority 2: Check lock file for resolved version
+    if (lockFile) {
+      const serverLock = getServerLock(lockFile, this.metadata.id);
+      if (serverLock) {
+        // Validate that locked version still satisfies constraint
+        const constraint = this.metadata.packageVersion ||
+          this.metadata.version || "latest";
+
+        if (
+          constraint === "latest" ||
+          satisfiesConstraint(serverLock.packageResolution, constraint)
+        ) {
+          ctx.info(
+            `Using locked version: ${serverLock.packageResolution} (constraint: ${constraint})`,
+          );
+          return serverLock.packageResolution;
+        }
+
+        ctx.warning(
+          `Locked version ${serverLock.packageResolution} no longer satisfies constraint ${constraint}, resolving new version`,
+        );
+      }
+    }
+
+    // Priority 3: Query package registry for latest matching constraint
     if (this.metadata.packageName && this.metadata.packageRegistry) {
       try {
         const versionInfo = await fetchLatestVersion(
@@ -56,10 +96,23 @@ export abstract class BaseMCPServer implements MCPServerModule {
         );
 
         if (versionInfo.latestVersion) {
+          const constraint = this.metadata.packageVersion ||
+            this.metadata.version || "latest";
+
+          // Validate against constraint if specified
+          if (
+            constraint !== "latest" &&
+            !satisfiesConstraint(versionInfo.latestVersion, constraint)
+          ) {
+            ctx.warning(
+              `Latest version ${versionInfo.latestVersion} does not satisfy constraint ${constraint}`,
+            );
+            return undefined;
+          }
+
           return versionInfo.latestVersion;
         }
 
-        // If fetch failed, log warning and fall back to undefined (latest)
         console.warn(
           `Failed to fetch latest version for ${this.metadata.packageName}: ${versionInfo.error}`,
         );
@@ -203,15 +256,38 @@ export abstract class BaseMCPServer implements MCPServerModule {
 
   /**
    * Default install implementation
-   * Generates MCP config using generateMcpConfig()
+   * Generates MCP config using generateMcpConfig() and updates lock file
    */
   async install(ctx: LifecycleContext): Promise<InstallResult> {
     try {
-      // Resolve version before generating config
-      const resolvedVersion = await this.resolveVersion();
+      // Read existing lock file
+      const projectPath = ctx.getProjectPath();
+      const lockFile = await readLockFile(projectPath);
+
+      // Resolve version (checks lock file, then queries registry)
+      const resolvedVersion = await this.resolveVersion(ctx, lockFile);
 
       if (resolvedVersion && resolvedVersion !== this.metadata.version) {
-        ctx.info(`Using latest version: ${resolvedVersion}`);
+        ctx.info(`Using version: ${resolvedVersion}`);
+      }
+
+      // Update lock file if we have package registry info
+      if (
+        resolvedVersion && this.metadata.packageName &&
+        this.metadata.packageRegistry
+      ) {
+        // Pin exact version initially (users can manually edit to add ^ or ~)
+        const constraint = this.metadata.packageVersion || resolvedVersion;
+
+        const updatedLockFile = updateServerLock(lockFile, this.metadata.id, {
+          packageName: this.metadata.packageName,
+          registry: this.metadata.packageRegistry,
+          packageConstraint: constraint,
+          packageResolution: resolvedVersion,
+        });
+
+        await writeLockFile(projectPath, updatedLockFile);
+        ctx.success(`Updated lock file: ${this.metadata.id}@${resolvedVersion}`);
       }
 
       const secrets = {}; // Secrets are already saved by this point

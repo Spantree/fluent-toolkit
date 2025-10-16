@@ -22,6 +22,7 @@ export interface ServerMetadata {
   // Package registry information (for dynamic version resolution)
   packageName?: string; // Package name in npm/PyPI (if different from id)
   packageRegistry?: "npm" | "pypi"; // Which registry to query for latest version
+  packageVersion?: string; // Version or constraint (1.0.0, ^1.0.0, ~2.1.0, >=3.0.0, etc.)
 }
 
 // Lifecycle Results
