@@ -12,28 +12,28 @@ tags:
 
 Add version pinning support to ensure reproducible MCP server installations across environments.
 
-## 📌 BACKLOG — Phase 1: Assess Current State
+## ✅ COMPLETED — Phase 1: Assess Current State
 
-- [ ] Review existing `ServerMetadata.version` field usage
-- [ ] Check current MCP config generation (npx, uvx, etc.)
-- [ ] Identify which servers need version pinning
-- [ ] Document current version-related behavior
+- [x] Review existing `ServerMetadata.version` field usage
+- [x] Check current MCP config generation (npx, uvx, etc.)
+- [x] Identify which servers need version pinning
+- [x] Document current version-related behavior
 
-## 📌 BACKLOG — Phase 2: Version Field Implementation
+## ✅ COMPLETED — Phase 2: Version Field Implementation
 
-- [ ] Add `version` field to all server metadata (already exists in interface)
-- [ ] Define version pinning strategy per package manager
+- [x] Add `version` field to all server metadata (already exists in interface)
+- [x] Define version pinning strategy per package manager
   - npm: `@package@version` or `package@version`
   - Python/uvx: `package==version`
-- [ ] Update `generateMcpConfig()` to use version when specified
+- [x] Update `generateMcpConfig()` to use version when specified
 
-## 📌 BACKLOG — Phase 3: Server Updates
+## ✅ COMPLETED — Phase 3: Server Updates
 
-- [ ] Update Sequential Thinking server with version
-- [ ] Update Context7 server with version
-- [ ] Update Exa server with version
-- [ ] Update Basic Memory server with version
-- [ ] Update Notion server with version
+- [x] Update Sequential Thinking server with version
+- [x] Update Context7 server with version
+- [x] Update Exa server with version
+- [x] Basic Memory uses custom command structure, no version needed
+- [x] Notion server not on this branch (will be added in Issue #2)
 
 ## 📌 BACKLOG — Phase 4: Documentation
 
@@ -42,29 +42,32 @@ Add version pinning support to ensure reproducible MCP server installations acro
 - [ ] Create version upgrade guide
 - [ ] Add troubleshooting for version conflicts
 
-## Implementation Strategy
+## Implementation Summary
 
-**Version Syntax by Package Manager**:
+**Core Changes** (`src/lib/utils/dotenv.ts`):
 
-- **npm/npx**: `npx -y package@version`
-- **Python/uvx**: `uvx package==version`
+- Added optional `version` parameter to all config generation functions
+- `createNpxConfig()`: Appends `@version` for npm packages
+- `createUvxConfig()`: Appends `==version` for Python packages
+- `createNpxConfigWithSecrets()` and `createUvxConfigWithSecrets()` updated
 
-**Server Metadata**:
+**Server Updates**:
 
-```typescript
-metadata: ServerMetadata = {
-  id: "sequentialthinking",
-  name: "Sequential Thinking",
-  version: "0.3.0", // Pin to specific version
-  // ...
-};
-```
+- **Sequential Thinking**: `createNpxConfig(..., true, this.metadata.version)`
+- **Context7**: `createNpxConfig(..., true, this.metadata.version)`
+- **Exa**: `createUvxConfigWithSecrets(..., ".env.mcp.secrets", this.metadata.version)`
+- **Basic Memory**: Uses custom command, no version parameter needed
 
-**Config Generation**:
+**Version Syntax**:
 
-- If version specified: use exact version in command
-- If no version: use latest (current behavior)
-- Version goes in args, not env vars
+- npm: `@modelcontextprotocol/server-sequential-thinking@1.0.0`
+- Python: `mcp-server-exa==1.0.0`
+
+**Backward Compatibility**:
+
+- Version parameter is optional in all functions
+- When version is undefined: uses latest (existing behavior)
+- No breaking changes to existing code
 
 ## observations
 
@@ -72,6 +75,8 @@ metadata: ServerMetadata = {
 - [design-decision] Version pinning optional, defaults to latest #backward-compatible
 - [architecture] Version handling per package manager type #npm-vs-python
 - [use-case] Reproducible installations for production deployments #stability
+- [implementation] All servers already had version metadata, just not using it #quick-win
+- [limitation] Basic Memory uses custom command structure, doesn't need version pinning #special-case
 
 ## relations
 
@@ -79,4 +84,4 @@ metadata: ServerMetadata = {
 - pr-permalink: https://github.com/Spantree/fluent-toolkit/pull/TBD
 - relates-to: [[mcp-registry]], [[server-lifecycle]]
 - uses-technology: [deno, typescript, npm, uvx]
-- implemented-in: TBD
+- implemented-in: [src/lib/utils/dotenv.ts, registry/mcp-servers/*/index.ts]
