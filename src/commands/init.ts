@@ -11,7 +11,15 @@ import { ClaudeMdManager } from "../core/claude-md.ts";
 import { ContextDirManager } from "../core/context-dir.ts";
 import { Prompts } from "../ui/prompts.ts";
 import { DefaultLifecycleContext } from "../lib/lifecycle-context.ts";
-import { checkClaudeCodeInstallation, getInstallationInstructions } from "../utils/claude-version.ts";
+import {
+  checkClaudeCodeInstallation,
+  getInstallationInstructions,
+  getInstallCommand,
+  getUpgradeCommand,
+  checkForUpgrade,
+  clearVersionCache,
+} from "../utils/claude-version.ts";
+import { getVersionChanges } from "../utils/changelog.ts";
 import type { InitOptions, MCPServerEntry, MCPServerModule } from "../types/index.ts";
 
 export class InitCommand {
@@ -28,32 +36,265 @@ export class InitCommand {
         Prompts.progress("Checking Claude Code installation");
         const versionCheck = await checkClaudeCodeInstallation();
 
+        // Scenario 1: Not installed
         if (!versionCheck.installed) {
           Prompts.error("Claude Code is not installed");
-          console.log(getInstallationInstructions());
-          console.log("\nAfter installing Claude Code, run 'ftk init' again.");
-          console.log("Or use 'ftk init --skip-checks' to bypass this check.\n");
-          return;
-        }
 
-        if (!versionCheck.meetsRequirements) {
-          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated`);
-          console.log(getInstallationInstructions());
-          console.log("\nSome features may not work correctly with older versions.");
+          const installCmd = getInstallCommand(); // Synchronous now
 
-          if (!options.noPrompt) {
-            const shouldContinue = await Prompts.confirm(
-              "Continue anyway?",
+          if (installCmd && !options.noPrompt) {
+            // Offer automatic installation
+            console.log("\nWould you like to install Claude Code now?");
+            console.log(`Command to run: ${installCmd}\n`);
+
+            const shouldInstall = await Prompts.confirm(
+              "Install Claude Code?",
               false
             );
 
-            if (!shouldContinue) {
-              Prompts.info("Setup cancelled");
+            if (shouldInstall) {
+              Prompts.progress("Installing Claude Code");
+
+              try {
+                const installCommand = new Deno.Command("sh", {
+                  args: ["-c", installCmd],
+                  stdout: "inherit",
+                  stderr: "inherit",
+                });
+
+                const { code } = await installCommand.output();
+
+                if (code === 0) {
+                  Prompts.success("Claude Code installed successfully");
+
+                  // Clear cache and re-check
+                  clearVersionCache();
+                  const recheckResult = await checkClaudeCodeInstallation();
+
+                  if (recheckResult.installed && recheckResult.meetsRequirements) {
+                    Prompts.success(`Claude Code ${recheckResult.version} is ready`);
+                  } else {
+                    Prompts.warning("Installation completed but version check failed");
+                    console.log("Please verify the installation and try again.\n");
+                    return;
+                  }
+                } else {
+                  Prompts.error("Installation failed");
+                  console.log("\nPlease install manually:");
+                  console.log(getInstallationInstructions());
+                  return;
+                }
+              } catch (error) {
+                Prompts.error(`Installation error: ${error instanceof Error ? error.message : String(error)}`);
+                console.log("\nPlease install manually:");
+                console.log(getInstallationInstructions());
+                return;
+              }
+            } else {
+              console.log(getInstallationInstructions());
+              console.log("\nAfter installing Claude Code, run 'ftk init' again.");
+              console.log("Or use 'ftk init --skip-checks' to bypass this check.\n");
               return;
             }
+          } else {
+            // No automatic install available or --no-prompt mode
+            console.log(getInstallationInstructions());
+            console.log("\nAfter installing Claude Code, run 'ftk init' again.");
+            console.log("Or use 'ftk init --skip-checks' to bypass this check.\n");
+            return;
           }
-        } else {
+        }
+        // Scenario 2: Outdated version
+        else if (!versionCheck.meetsRequirements) {
+          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated (minimum: v1.0.0)`);
+
+          const upgradeCmd = await getUpgradeCommand();
+
+          if (upgradeCmd && !options.noPrompt && versionCheck.version) {
+            // Fetch and show changelog
+            const upgradeCheck = await checkForUpgrade(versionCheck.version);
+
+            console.log("\nWould you like to upgrade Claude Code now?");
+            console.log(`Command to run: ${upgradeCmd}`);
+
+            // Show changelog if available
+            if (upgradeCheck.latestVersion) {
+              Prompts.progress("Fetching changelog");
+              const changelog = await getVersionChanges(
+                versionCheck.version,
+                upgradeCheck.latestVersion,
+              );
+
+              if (changelog) {
+                console.log("\n📋 What's new:");
+                console.log(changelog);
+              }
+            }
+
+            console.log();
+
+            const shouldUpgrade = await Prompts.confirm(
+              "Upgrade Claude Code?",
+              false
+            );
+
+            if (shouldUpgrade) {
+              Prompts.progress("Upgrading Claude Code");
+
+              try {
+                const upgradeCommand = new Deno.Command("sh", {
+                  args: ["-c", upgradeCmd],
+                  stdout: "inherit",
+                  stderr: "inherit",
+                });
+
+                const { code } = await upgradeCommand.output();
+
+                if (code === 0) {
+                  Prompts.success("Claude Code upgraded successfully");
+
+                  // Clear cache and re-check
+                  clearVersionCache();
+                  const recheckResult = await checkClaudeCodeInstallation();
+
+                  if (recheckResult.meetsRequirements) {
+                    Prompts.success(`Claude Code ${recheckResult.version} is ready`);
+                  } else {
+                    Prompts.warning("Upgrade completed but version still doesn't meet requirements");
+                    console.log("Please verify the upgrade and try again.\n");
+
+                    const shouldContinue = await Prompts.confirm(
+                      "Continue anyway?",
+                      false
+                    );
+
+                    if (!shouldContinue) {
+                      Prompts.info("Setup cancelled");
+                      return;
+                    }
+                  }
+                } else {
+                  Prompts.error("Upgrade failed");
+                  console.log("\nPlease upgrade manually:");
+                  console.log(getInstallationInstructions());
+
+                  const shouldContinue = await Prompts.confirm(
+                    "Continue with current version?",
+                    false
+                  );
+
+                  if (!shouldContinue) {
+                    Prompts.info("Setup cancelled");
+                    return;
+                  }
+                }
+              } catch (error) {
+                Prompts.error(`Upgrade error: ${error instanceof Error ? error.message : String(error)}`);
+                console.log("\nPlease upgrade manually:");
+                console.log(getInstallationInstructions());
+
+                const shouldContinue = await Prompts.confirm(
+                  "Continue with current version?",
+                  false
+                );
+
+                if (!shouldContinue) {
+                  Prompts.info("Setup cancelled");
+                  return;
+                }
+              }
+            } else {
+              console.log("\nSome features may not work correctly with older versions.");
+
+              const shouldContinue = await Prompts.confirm(
+                "Continue anyway?",
+                false
+              );
+
+              if (!shouldContinue) {
+                Prompts.info("Setup cancelled");
+                return;
+              }
+            }
+          } else {
+            // No automatic upgrade available or --no-prompt mode
+            console.log(getInstallationInstructions());
+            console.log("\nSome features may not work correctly with older versions.");
+
+            if (!options.noPrompt) {
+              const shouldContinue = await Prompts.confirm(
+                "Continue anyway?",
+                false
+              );
+
+              if (!shouldContinue) {
+                Prompts.info("Setup cancelled");
+                return;
+              }
+            }
+          }
+        }
+        // Scenario 3: Up to date - check for upgrades
+        else {
           Prompts.success(`Claude Code ${versionCheck.version} detected`);
+
+          // Check for available upgrades
+          if (versionCheck.version) {
+            const upgradeCheck = await checkForUpgrade(versionCheck.version);
+
+            if (upgradeCheck.available && upgradeCheck.latestVersion) {
+              Prompts.info(`Newer version available: ${upgradeCheck.latestVersion}`);
+
+              const upgradeCmd = await getUpgradeCommand();
+
+              if (upgradeCmd && !options.noPrompt) {
+                console.log(`\nCommand to upgrade: ${upgradeCmd}`);
+
+                // Show changelog if available
+                Prompts.progress("Fetching changelog");
+                const changelog = await getVersionChanges(
+                  versionCheck.version,
+                  upgradeCheck.latestVersion,
+                );
+
+                if (changelog) {
+                  console.log("\n📋 What's new:");
+                  console.log(changelog);
+                }
+
+                console.log();
+
+                const shouldUpgrade = await Prompts.confirm(
+                  "Upgrade to latest version?",
+                  false
+                );
+
+                if (shouldUpgrade) {
+                  Prompts.progress("Upgrading Claude Code");
+
+                  try {
+                    const upgradeCommand = new Deno.Command("sh", {
+                      args: ["-c", upgradeCmd],
+                      stdout: "inherit",
+                      stderr: "inherit",
+                    });
+
+                    const { code } = await upgradeCommand.output();
+
+                    if (code === 0) {
+                      Prompts.success(`Upgraded to Claude Code ${upgradeCheck.latestVersion}`);
+                      clearVersionCache();
+                    } else {
+                      Prompts.warning("Upgrade failed - continuing with current version");
+                    }
+                  } catch (error) {
+                    Prompts.warning(`Upgrade error: ${error instanceof Error ? error.message : String(error)}`);
+                    Prompts.info("Continuing with current version");
+                  }
+                }
+              }
+            }
+          }
         }
       }
 
@@ -131,10 +372,9 @@ export class InitCommand {
         return;
       }
 
-      // 5. Prompt for context directory name
-      const contextDirName = options.noPrompt
-        ? "context"
-        : await Prompts.requestContextDirName();
+      // 5. Get context directory name
+      const contextDirName = options.contextDir ||
+        (options.noPrompt ? "context" : await Prompts.requestContextDirName());
 
       // 6. Create lifecycle context
       const ctx = new DefaultLifecycleContext();

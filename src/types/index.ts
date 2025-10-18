@@ -119,7 +119,9 @@ export interface InitOptions {
   skipChecks?: boolean; // Skip Claude Code version check
   force?: boolean;
   servers?: string[];
+  contextDir?: string; // Context directory name
   noPrompt?: boolean;
+  yes?: boolean; // Auto-confirm all prompts (alias for noPrompt)
 }
 
 // Registry Metadata

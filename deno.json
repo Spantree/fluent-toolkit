@@ -10,6 +10,7 @@
     "compile:mac-arm": "deno compile --allow-all --unstable-raw-imports --target=aarch64-apple-darwin --output=dist/ftk-darwin-arm64 src/main.ts",
     "compile:linux": "deno compile --allow-all --unstable-raw-imports --target=x86_64-unknown-linux-gnu --output=dist/ftk-linux-x86_64 src/main.ts",
     "test": "deno test --allow-all",
+    "test:integration": "deno test --allow-all tests/integration/",
     "fmt": "deno fmt",
     "lint": "deno lint"
   },

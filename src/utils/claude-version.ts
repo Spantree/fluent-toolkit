@@ -9,6 +9,8 @@ export interface ClaudeVersionCheck {
   installed: boolean;
   version?: string;
   meetsRequirements: boolean;
+  upgradeAvailable?: boolean;
+  latestVersion?: string;
   message?: string;
 }
 
@@ -142,42 +144,135 @@ export function clearVersionCache(): void {
 }
 
 /**
+ * Detect how Claude Code was installed
+ */
+export async function detectInstallationMethod(): Promise<
+  "npm" | "brew" | "unknown"
+> {
+  try {
+    // Check if installed via npm by looking at the claude binary
+    const whichCmd = new Deno.Command("which", {
+      args: ["claude"],
+      stdout: "piped",
+      stderr: "piped",
+    });
+
+    const { success, stdout } = await whichCmd.output();
+
+    if (success) {
+      const path = new TextDecoder().decode(stdout).trim();
+
+      // npm global installs typically go to:
+      // - macOS: /usr/local/bin or ~/.nvm/versions/node/*/bin
+      // - Windows: %APPDATA%\npm
+      // Homebrew typically goes to: /opt/homebrew/bin or /usr/local/bin
+      if (path.includes("node") || path.includes("npm") || path.includes("nvm")) {
+        return "npm";
+      }
+
+      if (path.includes("homebrew") || path.includes("Homebrew")) {
+        return "brew";
+      }
+    }
+  } catch {
+    // Fall through to default
+  }
+
+  return "unknown";
+}
+
+/**
+ * Get platform-specific install command
+ * Prioritizes npm (official method) unless already installed via brew
+ */
+export function getInstallCommand(
+  preferredMethod?: "npm" | "brew",
+): string {
+  // Use npm as the official installation method
+  const npmCommand = "npm install -g @anthropic-ai/claude-code";
+
+  // If user has a preference, respect it
+  if (preferredMethod === "brew" && Deno.build.os === "darwin") {
+    return "brew install claude-code";
+  }
+
+  // Default to npm (official method)
+  return npmCommand;
+}
+
+/**
+ * Get platform-specific upgrade command
+ * Detects installation method and uses appropriate upgrade command
+ */
+export async function getUpgradeCommand(): Promise<string> {
+  const method = await detectInstallationMethod();
+
+  switch (method) {
+    case "brew":
+      return "brew upgrade claude-code";
+    case "npm":
+      return "npm update -g @anthropic-ai/claude-code";
+    default:
+      // Default to npm (official method)
+      return "npm update -g @anthropic-ai/claude-code";
+  }
+}
+
+/**
  * Get installation instructions based on platform
  */
 export function getInstallationInstructions(): string {
-  const platform = Deno.build.os;
+  return `
+Claude Code is not installed. To install (official method):
 
-  switch (platform) {
-    case "darwin":
-      return `
-Claude Code is not installed. To install:
+  npm install -g @anthropic-ai/claude-code
 
-  brew install claude-code
-
-Or visit: https://docs.claude.com/claude-code/install
+Alternative methods:
+  • macOS: brew install claude-code
+  • Windows: winget install Claude.ClaudeCode
+  • Visit: https://docs.claude.com/claude-code/install
 `;
-    case "linux":
-      return `
-Claude Code is not installed. To install:
+}
 
-  Visit: https://docs.claude.com/claude-code/install
+/**
+ * Check if a newer version of Claude Code is available
+ * This is a stub - in production, this would check the Homebrew/winget registry
+ * For now, we'll return false unless we can detect upgrade availability
+ */
+export async function checkForUpgrade(currentVersion: string): Promise<{
+  available: boolean;
+  latestVersion?: string;
+}> {
+  // Try to get the latest version from Homebrew on macOS
+  if (Deno.build.os === "darwin") {
+    try {
+      const command = new Deno.Command("brew", {
+        args: ["info", "--json", "claude-code"],
+        stdout: "piped",
+        stderr: "piped",
+      });
 
-Or use your package manager if available.
-`;
-    case "windows":
-      return `
-Claude Code is not installed. To install:
+      const { code, stdout } = await command.output();
 
-  Visit: https://docs.claude.com/claude-code/install
+      if (code === 0) {
+        const output = new TextDecoder().decode(stdout);
+        const info = JSON.parse(output);
 
-Or use winget if available:
-  winget install Claude.ClaudeCode
-`;
-    default:
-      return `
-Claude Code is not installed.
+        if (Array.isArray(info) && info.length > 0 && info[0].versions?.stable) {
+          const latestVersion = info[0].versions.stable;
+          const current = parseSemver(currentVersion);
+          const latest = parseSemver(latestVersion);
 
-Visit: https://docs.claude.com/claude-code/install
-`;
+          if (greaterOrEqual(latest, current) && !greaterOrEqual(current, latest)) {
+            return { available: true, latestVersion };
+          }
+        }
+      }
+    } catch {
+      // Silently fail - upgrade check is optional
+    }
   }
+
+  // For other platforms or if check fails, assume no upgrade available
+  return { available: false };
 }
