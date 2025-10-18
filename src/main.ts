@@ -10,7 +10,7 @@ import { Command } from "@cliffy/command";
 import { InitCommand } from "./commands/init.ts";
 import type { InitOptions } from "./types/index.ts";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 await new Command()
   .name("ftk")
@@ -24,14 +24,20 @@ await new Command()
   .command("init", "Initialize MCP servers for Claude Code in current project")
     .option("-f, --force", "Force re-initialization even if already configured")
     .option("--skip-validation", "Skip dependency validation checks")
+    .option("--skip-checks", "Skip Claude Code installation and version checks")
     .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
+    .option("-c, --context-dir <dir:string>", "Context directory name (default: context)")
     .option("--no-prompt", "Accept all defaults without prompting")
+    .option("-y, --yes", "Auto-confirm all prompts (same as --no-prompt)")
     .action(async (options) => {
       const initOptions: InitOptions = {
         force: options.force,
         skipValidation: options.skipValidation,
+        skipChecks: options.skipChecks,
         servers: options.servers,
-        noPrompt: !options.prompt, // Cliffy's --no-prompt becomes prompt: false
+        contextDir: options.contextDir,
+        noPrompt: !options.prompt || options.yes, // --no-prompt or -y
+        yes: options.yes,
       };
 
       await InitCommand.execute(initOptions);
