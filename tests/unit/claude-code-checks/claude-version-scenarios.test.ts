@@ -10,7 +10,6 @@ import {
   getUpgradeCommand,
   parseVersion,
   meetsMinimumVersion,
-  MIN_CLAUDE_VERSION,
 } from "../../../src/utils/claude-version.ts";
 
 console.log("=== Claude Code Version Checking Tests ===\n");
