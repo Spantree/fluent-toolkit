@@ -34,7 +34,7 @@ console.log();
 // Test 3: Get install/upgrade commands
 console.log("Test 3: Platform commands");
 console.log("  Install command:", getInstallCommand());
-console.log("  Upgrade command:", getUpgradeCommand());
+console.log("  Upgrade command:", await getUpgradeCommand());
 console.log();
 
 // Test 4: Check current installation

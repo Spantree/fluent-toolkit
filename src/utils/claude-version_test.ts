@@ -97,11 +97,11 @@ Deno.test("meetsMinimumVersion - handles different length versions", () => {
 });
 
 Deno.test("meetsMinimumVersion - meets minimum version requirement", () => {
-  // Test against actual MIN_CLAUDE_VERSION
-  assertEquals(meetsMinimumVersion("1.0.0", MIN_CLAUDE_VERSION), true);
-  assertEquals(meetsMinimumVersion("1.0.1", MIN_CLAUDE_VERSION), true);
+  // Test against actual MIN_CLAUDE_VERSION (1.0.60)
+  assertEquals(meetsMinimumVersion("1.0.60", MIN_CLAUDE_VERSION), true);
+  assertEquals(meetsMinimumVersion("1.0.61", MIN_CLAUDE_VERSION), true);
   assertEquals(meetsMinimumVersion("2.0.0", MIN_CLAUDE_VERSION), true);
-  assertEquals(meetsMinimumVersion("0.9.9", MIN_CLAUDE_VERSION), false);
+  assertEquals(meetsMinimumVersion("1.0.59", MIN_CLAUDE_VERSION), false);
 });
 
 Deno.test("meetsMinimumVersion - handles invalid versions gracefully", () => {

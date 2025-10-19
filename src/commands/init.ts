@@ -56,8 +56,10 @@ export class InitCommand {
               Prompts.progress("Installing Claude Code");
 
               try {
-                const installCommand = new Deno.Command("sh", {
-                  args: ["-c", installCmd],
+                // Parse command to avoid shell injection
+                const [command, ...args] = installCmd.split(/\s+/);
+                const installCommand = new Deno.Command(command, {
+                  args,
                   stdout: "inherit",
                   stderr: "inherit",
                 });
@@ -106,7 +108,7 @@ export class InitCommand {
         }
         // Scenario 2: Outdated version
         else if (!versionCheck.meetsRequirements) {
-          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated (minimum: v1.0.0)`);
+          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated (minimum: v${MIN_CLAUDE_VERSION})`);
 
           const upgradeCmd = await getUpgradeCommand();
 
@@ -142,8 +144,10 @@ export class InitCommand {
               Prompts.progress("Upgrading Claude Code");
 
               try {
-                const upgradeCommand = new Deno.Command("sh", {
-                  args: ["-c", upgradeCmd],
+                // Parse command to avoid shell injection
+                const [command, ...args] = upgradeCmd.split(/\s+/);
+                const upgradeCommand = new Deno.Command(command, {
+                  args,
                   stdout: "inherit",
                   stderr: "inherit",
                 });
@@ -273,8 +277,10 @@ export class InitCommand {
                   Prompts.progress("Upgrading Claude Code");
 
                   try {
-                    const upgradeCommand = new Deno.Command("sh", {
-                      args: ["-c", upgradeCmd],
+                    // Parse command to avoid shell injection
+                    const [command, ...args] = upgradeCmd.split(/\s+/);
+                    const upgradeCommand = new Deno.Command(command, {
+                      args,
                       stdout: "inherit",
                       stderr: "inherit",
                     });

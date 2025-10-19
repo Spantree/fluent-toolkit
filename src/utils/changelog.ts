@@ -134,20 +134,34 @@ export function formatChangelog(
   }
 
   const lines: string[] = [];
+  let changesAdded = 0;
+  let overflow = 0;
 
   for (const entry of entries) {
-    lines.push(`\n📦 Version ${entry.version}:`);
-
+    // Only add version header if at least one change from this version will be shown
+    const changesForThisVersion = [];
     for (const change of entry.changes) {
-      lines.push(`   • ${change}`);
+      if (changesAdded < maxChanges) {
+        changesForThisVersion.push(`   • ${change}`);
+        changesAdded++;
+      } else {
+        overflow++;
+      }
+    }
+
+    if (changesForThisVersion.length > 0) {
+      lines.push(`\n📦 Version ${entry.version}:`);
+      lines.push(...changesForThisVersion);
+    }
+
+    if (changesAdded >= maxChanges) {
+      // Stop processing further entries once maxChanges is reached
+      break;
     }
   }
 
-  // Limit total changes displayed
-  const changeCount = entries.reduce((sum, e) => sum + e.changes.length, 0);
-
-  if (changeCount > maxChanges) {
-    lines.push(`\n   ... and ${changeCount - maxChanges} more changes`);
+  if (overflow > 0) {
+    lines.push(`\n   ... and ${overflow} more changes`);
   }
 
   return lines.join("\n");

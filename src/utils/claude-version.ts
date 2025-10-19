@@ -14,12 +14,15 @@ export interface ClaudeVersionCheck {
   message?: string;
 }
 
-// Minimum required Claude Code version
-// MCP support was added in Claude Code 1.0.0
-export const MIN_CLAUDE_VERSION = "1.0.0";
+// Minimum required Claude Code version for subagent support
+// Custom subagents were introduced in Claude Code 1.0.60
+export const MIN_CLAUDE_VERSION = "1.0.60";
 
 // Cache for version check to avoid repeated command execution
+// TTL is 5 minutes (300000ms)
+const CACHE_TTL_MS = 5 * 60 * 1000;
 let cachedVersionCheck: ClaudeVersionCheck | null = null;
+let cacheTimestamp: number | null = null;
 
 /**
  * Parse version string from claude --version output
@@ -62,8 +65,13 @@ export function meetsMinimumVersion(version: string, minimum: string): boolean {
 export async function checkClaudeCodeInstallation(
   options: { forceRefresh?: boolean } = {}
 ): Promise<ClaudeVersionCheck> {
-  // Return cached result if available and not forcing refresh
-  if (!options.forceRefresh && cachedVersionCheck) {
+  // Return cached result if available, not forcing refresh, and within TTL
+  const now = Date.now();
+  const cacheValid = cachedVersionCheck &&
+                    cacheTimestamp &&
+                    (now - cacheTimestamp < CACHE_TTL_MS);
+
+  if (!options.forceRefresh && cacheValid && cachedVersionCheck) {
     return cachedVersionCheck;
   }
 
@@ -84,6 +92,7 @@ export async function checkClaudeCodeInstallation(
         message: `Claude Code command failed: ${errorOutput}`,
       };
       cachedVersionCheck = result;
+      cacheTimestamp = Date.now();
       return result;
     }
 
@@ -97,6 +106,7 @@ export async function checkClaudeCodeInstallation(
         message: `Could not parse version from output: ${output}`,
       };
       cachedVersionCheck = result;
+      cacheTimestamp = Date.now();
       return result;
     }
 
@@ -112,6 +122,7 @@ export async function checkClaudeCodeInstallation(
     };
 
     cachedVersionCheck = result;
+    cacheTimestamp = Date.now();
     return result;
   } catch (error) {
     // Command not found or other execution error
@@ -122,6 +133,7 @@ export async function checkClaudeCodeInstallation(
         message: "Claude Code is not installed or not in PATH",
       };
       cachedVersionCheck = result;
+      cacheTimestamp = Date.now();
       return result;
     }
 
@@ -131,6 +143,7 @@ export async function checkClaudeCodeInstallation(
       message: `Error checking Claude Code: ${error instanceof Error ? error.message : String(error)}`,
     };
     cachedVersionCheck = result;
+    cacheTimestamp = Date.now();
     return result;
   }
 }
@@ -141,6 +154,7 @@ export async function checkClaudeCodeInstallation(
  */
 export function clearVersionCache(): void {
   cachedVersionCheck = null;
+  cacheTimestamp = null;
 }
 
 /**
