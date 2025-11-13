@@ -141,6 +141,38 @@ The context directory feature allows MCP servers to store data:
 - Servers can opt-in to git exposure via `exposeContextToGit: true`
 - See `docs/context-directory.md` for details
 
+### Basic Memory Conventions
+
+When using Basic Memory MCP for project notes and plans:
+
+**File Naming**:
+
+- Use kebab-case for filenames (e.g., `claude-code-checks.md`, `mcp-authentication-setup.md`)
+- Titles in frontmatter should use Title Case (e.g., `title: "Issue 1: Add Claude Code Installation and Version Checks"`)
+
+**Frontmatter Requirements**:
+
+```yaml
+---
+title: "Issue Title in Title Case"
+kind: Plan  # or Note, Guide, etc.
+created_at: 2025-10-16T15:00:00.000Z
+status: active  # draft, active, complete
+issue_permalink: https://github.com/org/repo/issues/1
+pr_permalink: https://github.com/org/repo/pull/10
+tags:
+  - kebab-case-tag
+  - another-tag
+---
+```
+
+**Plan Structure**:
+
+- Use status emojis: 📌 BACKLOG, ⏳ IN PROGRESS, ✅ COMPLETED
+- Include observations and relations sections
+- Reference source files and implementations
+- Update status as work progresses
+
 ## Distribution
 
 This project uses Homebrew for distribution:
@@ -160,9 +192,46 @@ This project uses Homebrew for distribution:
 
 ## Available Commands
 
-- `ftk init` - Interactive MCP server setup
+- `ftk init` - Interactive MCP server setup with automatic Claude Code installation/upgrade
 - `ftk --version` - Show version
 - `ftk --help` - Show help
+
+### Claude Code Installation Checking
+
+The `ftk init` command includes comprehensive Claude Code installation checking:
+
+**Scenarios Handled:**
+
+1. **Not Installed**: Offers automatic installation with command preview
+   - Uses official npm method: `npm install -g @anthropic-ai/claude-code`
+   - Alternative methods available (brew, winget)
+   - Requires user confirmation before executing
+   - Re-validates installation after completion
+
+2. **Outdated Version**: Offers automatic upgrade with command preview
+   - Auto-detects installation method (npm, brew, etc.)
+   - Shows appropriate upgrade command
+   - Displays changelog with changes between versions
+   - Requires user confirmation before executing
+   - Allows continuing with old version or cancelling
+
+3. **Upgrade Available**: Optionally offers upgrade to latest version
+   - Checks package manager for newer versions
+   - Shows available version and changelog
+   - Displays what's new between current and latest
+   - Non-blocking - setup continues regardless
+
+**Installation Method Detection:**
+
+- Automatically detects if Claude Code was installed via npm or brew
+- Uses npm commands for npm installations
+- Uses brew commands for Homebrew installations
+- Defaults to npm (official method) for new installations
+
+**Flags:**
+
+- `--skip-checks` - Skip Claude Code version checking entirely
+- `--no-prompt` - Show instructions but don't offer automatic install/upgrade
 
 ## Development Workflow
 
@@ -189,12 +258,26 @@ All features MUST be developed in dedicated feature branches following this nami
 
 ### Local Development
 
+**Using Justfile (Recommended):**
+
+```bash
+just dev init              # Run ftk in development mode
+just check                 # Type check
+just validate              # Type check + lint + format check
+just quick-test            # Validate + compile + unit tests
+just vm-setup              # Setup Tart VM for integration testing
+```
+
+**Using Deno directly:**
+
 1. **Local testing**: `deno task dev init`
 2. **Type checking**: `deno check src/main.ts`
 3. **Formatting**: `deno fmt`
 4. **Linting**: `deno lint`
 5. **Compile**: `deno task compile` or `deno task compile:all`
 6. **Check CI status**: `gh run list` or `gh run view`
+
+**See [docs/justfile.md](docs/justfile.md) for complete command reference.**
 
 ## Release Workflow
 

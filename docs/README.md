@@ -10,6 +10,7 @@ Welcome to the fluent-toolkit documentation!
 ## User Guides
 
 - **[Development Guide](development.md)** - Contributing to fluent-toolkit
+- **[Justfile Commands](justfile.md)** - Command runner for development tasks
 - **[Context Directory](context-directory.md)** - Understanding the AI context folder feature
 
 ## Distribution & Deployment
