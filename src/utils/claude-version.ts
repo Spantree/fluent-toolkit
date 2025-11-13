@@ -3,7 +3,7 @@
  * Detects Claude Code installation and validates version requirements
  */
 
-import { parse as parseSemver, greaterOrEqual } from "@std/semver";
+import { greaterOrEqual, parse as parseSemver } from "@std/semver";
 
 export interface ClaudeVersionCheck {
   installed: boolean;
@@ -51,7 +51,9 @@ export function meetsMinimumVersion(version: string, minimum: string): boolean {
     return greaterOrEqual(parsedVersion, parsedMinimum);
   } catch (error) {
     // If parsing fails, fall back to false (doesn't meet requirements)
-    console.error(`Failed to parse version: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(
+      `Failed to parse version: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return false;
   }
 }
@@ -63,13 +65,13 @@ export function meetsMinimumVersion(version: string, minimum: string): boolean {
  * @returns Version check result with installation and requirement status
  */
 export async function checkClaudeCodeInstallation(
-  options: { forceRefresh?: boolean } = {}
+  options: { forceRefresh?: boolean } = {},
 ): Promise<ClaudeVersionCheck> {
   // Return cached result if available, not forcing refresh, and within TTL
   const now = Date.now();
   const cacheValid = cachedVersionCheck &&
-                    cacheTimestamp &&
-                    (now - cacheTimestamp < CACHE_TTL_MS);
+    cacheTimestamp &&
+    (now - cacheTimestamp < CACHE_TTL_MS);
 
   if (!options.forceRefresh && cacheValid && cachedVersionCheck) {
     return cachedVersionCheck;
@@ -140,7 +142,9 @@ export async function checkClaudeCodeInstallation(
     const result = {
       installed: false,
       meetsRequirements: false,
-      message: `Error checking Claude Code: ${error instanceof Error ? error.message : String(error)}`,
+      message: `Error checking Claude Code: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     };
     cachedVersionCheck = result;
     cacheTimestamp = Date.now();

@@ -175,14 +175,14 @@ export class TartSession {
 
     return result.stdout
       .trim()
-      .split('\n')
-      .filter(line => line.length > 0);
+      .split("\n")
+      .filter((line) => line.length > 0);
   }
 
   /**
    * Disconnect (cleanup)
    */
-  async disconnect(): Promise<void> {
+  disconnect(): void {
     this._connected = false;
     this.log(`Disconnected from VM: ${this.vmName}`);
   }

@@ -3,7 +3,7 @@
  * Fetches Claude Code changelog and extracts changes between versions
  */
 
-import { parse as parseSemver, greaterOrEqual } from "@std/semver";
+import { greaterOrEqual, parse as parseSemver } from "@std/semver";
 
 export interface ChangelogEntry {
   version: string;

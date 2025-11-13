@@ -22,11 +22,13 @@ completed_at: 2025-10-18
 **Communication**: `tart exec` (no SSH required)
 
 ## Objective
+
 Create a repeatable, automated test environment using Tart VMs to validate ftk installation and configuration from zero to full functionality.
 
 ## Requirements
 
 ### VM Setup
+
 - **Name**: FTK test
 - **OS**: macOS Sequoia (canonical base image)
 - **Resources**: Small footprint (sufficient for CLI tools)
@@ -34,10 +36,11 @@ Create a repeatable, automated test environment using Tart VMs to validate ftk i
 - **Persistence**: Keep VM unless explicitly deleted
 
 ### Testing Scope
+
 1. **Interactive Mode Testing** (primary challenge)
    - ftk init with prompts
    - Interactive shell maintained for user responses
-   
+
 2. **Non-Interactive Mode Testing** (secondary)
    - Automated installation flow
 
@@ -46,6 +49,7 @@ Create a repeatable, automated test environment using Tart VMs to validate ftk i
    - Use EXA API key from host `.env.mcp.secrets`
 
 ### Automation Goals
+
 - Repeatable test script for every release
 - End-to-end validation: brew install → ftk init → MCP validation
 - Desktop Commander or Tart CLI for VM interaction
@@ -63,17 +67,20 @@ Create a repeatable, automated test environment using Tart VMs to validate ftk i
 9. Document and automate
 
 ## Status
+
 - **Started**: 2025-10-16
 - **Current Phase**: Infrastructure setup
 
 ## Root Cause Analysis (2025-10-17)
 
 ### The Problem
+
 Initial attempts to run `ftk init` via `tart exec FTK-test ftk init` resulted in **~396,450 lines of output** that exceeded API limits (413 error - request too large).
 
 ### Investigation Findings
 
 **Key Discovery**: ftk is correctly installed as a **compiled Mach-O binary**, NOT a Deno script:
+
 ```bash
 $ file /usr/local/bin/ftk
 /usr/local/bin/ftk: Mach-O 64-bit executable arm64
@@ -84,8 +91,9 @@ This means the massive output was NOT from Deno compilation as initially suspect
 ### Root Cause (Revised Understanding)
 
 The original massive output likely came from one of these sources:
+
 1. Running ftk from source (--HEAD install) instead of binary
-2. Environment or PATH issues with `tart exec` 
+2. Environment or PATH issues with `tart exec`
 3. Some other process generating massive output
 
 The actual ftk binary produces **clean, minimal output** when run properly.
@@ -93,11 +101,13 @@ The actual ftk binary produces **clean, minimal output** when run properly.
 ### Solution: --no-prompt Mode
 
 **Working Command**:
+
 ```bash
 tart exec FTK-test /bin/bash -c "cd /tmp/ftk-test && ftk init --no-prompt 2>&1"
 ```
 
 **Results**:
+
 - ✅ Sequential Thinking configured (v2025.7.1)
 - ✅ Context7 configured (v1.0.21)
 - ⚠️ Basic Memory skipped (Python PATH issue - system 3.9.6 vs Homebrew 3.14)
@@ -117,21 +127,23 @@ tart exec FTK-test /bin/bash -c "cd /tmp/ftk-test && ftk init --no-prompt 2>&1"
 ### Testing Strategy (Validated)
 
 **For Automated Testing**:
+
 1. Use `tart exec FTK-test /bin/bash -c "command"` with explicit bash shell
 2. Use `--no-prompt` flag for non-interactive testing
 3. Keep timeout reasonable (30-60 seconds sufficient)
 4. Redirect stderr if needed: `2>&1`
 
 **For Interactive Testing**:
+
 - SSH access is available: `ssh admin@$(tart ip FTK-test)`
 - For true interactive mode testing, use SSH rather than `tart exec`
 
 ### Success Metrics Achieved
 
-✅ Identified and resolved API error root cause  
-✅ Validated ftk binary installation (no Deno compilation)  
-✅ Successfully configured 2/3 MCP servers via --no-prompt  
-✅ Documented repeatable testing workflow  
+✅ Identified and resolved API error root cause\
+✅ Validated ftk binary installation (no Deno compilation)\
+✅ Successfully configured 2/3 MCP servers via --no-prompt\
+✅ Documented repeatable testing workflow\
 ⏳ Interactive mode testing via SSH (deferred)
 
 ### Next Steps
@@ -146,15 +158,18 @@ tart exec FTK-test /bin/bash -c "cd /tmp/ftk-test && ftk init --no-prompt 2>&1"
 ### Root Cause: PATH Configuration
 
 **Problem**: VM shell did not have Homebrew environment configured, causing:
+
 - System Python (3.9.6) found before Homebrew Python (3.14.0)
 - Basic Memory dependency check failing
 
 **Incorrect PATH**:
+
 ```
 /bin:/usr/bin:/usr/sbin:/usr/local/bin:/opt/homebrew/bin
 ```
 
 **Correct PATH**:
+
 ```
 /opt/homebrew/bin:/opt/homebrew/sbin:/bin:/usr/bin:/usr/sbin:/usr/local/bin
 ```
@@ -173,13 +188,15 @@ This ensures Homebrew binaries take precedence over system binaries.
 ### Verified Results
 
 **Working Command**:
+
 ```bash
 tart exec FTK-test /bin/zsh -c "source ~/.zshrc && mkdir -p /tmp/test && cd /tmp/test && ftk init --no-prompt"
 ```
 
 **Output**:
+
 - ✅ Sequential Thinking (v2025.7.1) configured
-- ✅ Context7 (v1.0.21) configured  
+- ✅ Context7 (v1.0.21) configured
 - ✅ Basic Memory configured (Python 3.14.0 detected correctly)
 - ✅ Created .mcp.json, .ftk/config.json, context/, CLAUDE.md
 - ✅ Clean output, no API errors
@@ -187,6 +204,7 @@ tart exec FTK-test /bin/zsh -c "source ~/.zshrc && mkdir -p /tmp/test && cd /tmp
 ### Automation Requirements
 
 **VM Setup Checklist**:
+
 1. Install Tart: `brew install tart`
 2. Download Sequoia image: `tart clone ghcr.io/cirruslabs/macos-sequoia-base:latest FTK-test`
 3. Start VM: `tart run FTK-test`
@@ -197,6 +215,7 @@ tart exec FTK-test /bin/zsh -c "source ~/.zshrc && mkdir -p /tmp/test && cd /tmp
 8. Test: `ftk init --no-prompt`
 
 **Critical Step**: Always source Homebrew environment when running commands via `tart exec`:
+
 ```bash
 tart exec VM-NAME /bin/zsh -c "source ~/.zshrc && your-command"
 ```
@@ -211,8 +230,9 @@ tart exec VM-NAME /bin/zsh -c "source ~/.zshrc && your-command"
 ### No ftk Changes Required
 
 The original approach was correct. The issue was environmental, not code-related.
+
 - ✅ ftk's Python version detection works correctly
-- ✅ Basic Memory's dependency requirements are appropriate  
+- ✅ Basic Memory's dependency requirements are appropriate
 - ✅ No changes needed to `src/lib/utils/command.ts`
 - ✅ No changes needed to server precheck logic
 
@@ -225,11 +245,13 @@ The solution is **purely environmental setup** in the test VM.
 **Status**: ✅ Fully Working
 
 **Command**:
+
 ```bash
 tart exec FTK-test /bin/zsh -c "source ~/.zshrc && cd /tmp/test && ftk init --no-prompt"
 ```
 
 **Use Cases**:
+
 - Automated testing
 - CI/CD pipelines
 - Release validation
@@ -242,6 +264,7 @@ tart exec FTK-test /bin/zsh -c "source ~/.zshrc && cd /tmp/test && ftk init --no
 **Status**: ⚠️ Requires TTY (Not via `tart exec`)
 
 **Why It Doesn't Work via `tart exec`**:
+
 - `tart exec` runs commands without allocating a pseudo-TTY
 - Interactive prompts (checkboxes, selections) require terminal control sequences
 - Process hangs waiting for keyboard input that cannot be provided
@@ -268,17 +291,19 @@ tart exec FTK-test /bin/zsh -c "source ~/.zshrc && cd /tmp/test && ftk init --no
    # Then run ftk init
    ```
 
-**Recommendation for Automation**: 
+**Recommendation for Automation**:
 Use `--no-prompt` mode exclusively for automated testing. Interactive mode is designed for manual users on their own systems where proper TTY is available by default.
 
 ### Testing Strategy
 
 **For Release Validation**:
+
 - ✅ Automated: Test `--no-prompt` mode via `tart exec`
 - ℹ️ Manual: Spot-check interactive mode on developer machines
 - ✅ Focus: Ensure `--no-prompt` covers all installation paths
 
 **Why This Is Sufficient**:
+
 - Most users run `ftk init` interactively on their own machines (proper TTY available)
 - Automation/CI scenarios use `--no-prompt` exclusively
 - Both modes use identical underlying installation logic
@@ -305,6 +330,7 @@ tests/integration/
 ### Core Components
 
 **VM Harness (`vm-harness.ts`)**:
+
 - Clone/start/stop/delete VMs
 - Get VM IP address
 - Quick command execution via `tart exec`
@@ -312,6 +338,7 @@ tests/integration/
 - List all VMs and check status
 
 **SSH Session (`ssh-session.ts`)**:
+
 - Persistent SSH connections
 - Execute commands with timeout
 - Interactive sessions with `expect`-like patterns
@@ -319,6 +346,7 @@ tests/integration/
 - Send special keys (Enter, Ctrl-C, etc.)
 
 **FTK Tester (`ftk-tester.ts`)**:
+
 - Configure Homebrew environment
 - Install dependencies (node, python, uv)
 - Install ftk via Homebrew
@@ -385,11 +413,11 @@ deno test --allow-all --no-check tests/integration/scenarios/init-no-prompt.test
 
 ### Key Features
 
-✅ **Repeatable**: Full VM lifecycle control  
-✅ **Isolated**: Each test can use fresh VM  
-✅ **Realistic**: Tests actual SSH interactions  
-✅ **Interactive**: Support for expect-style prompt handling  
-✅ **Comprehensive**: Validates all generated files  
+✅ **Repeatable**: Full VM lifecycle control\
+✅ **Isolated**: Each test can use fresh VM\
+✅ **Realistic**: Tests actual SSH interactions\
+✅ **Interactive**: Support for expect-style prompt handling\
+✅ **Comprehensive**: Validates all generated files\
 ✅ **Debuggable**: Can leave VMs running for inspection
 
 ### Best Practices
@@ -423,6 +451,7 @@ deno test --allow-all --no-check tests/integration/scenarios/init-no-prompt.test
 ### What Was Delivered
 
 #### 1. TartSession Class (`tests/integration/tart/tart-session.ts`)
+
 - VM command execution via `tart exec` (bypasses SSH authentication)
 - Compatible API with SSHSession for drop-in replacement
 - All file operations: fileExists, readFile, writeFile, mkdir, remove, ls
@@ -430,18 +459,22 @@ deno test --allow-all --no-check tests/integration/scenarios/init-no-prompt.test
 - Verbose logging for debugging
 
 #### 2. Non-Interactive ftk init
+
 **CLI Flags Added** (`src/main.ts`, `src/commands/init.ts`):
+
 - `--servers=<list>` - Specify servers to install (comma-separated)
 - `--context-dir=<dir>` - Set context directory name
 - `--yes` / `--no-prompt` - Auto-confirm all prompts
 - `--skip-checks` - Skip Claude Code installation checks
 
 **Example**:
+
 ```bash
 ftk init --servers=basic-memory --context-dir=context --skip-checks --yes
 ```
 
 #### 3. Validation Helpers (`tests/integration/scenarios/server-validation/validation-helpers.ts`)
+
 - `runFtkInit()` - Execute ftk init non-interactively
 - `validateMcpConfig()` - Verify .mcp.json structure
 - `validateServerDirectory()` - Check context directory creation
@@ -451,6 +484,7 @@ ftk init --servers=basic-memory --context-dir=context --skip-checks --yes
 **Session Compatibility**: All helpers accept `SSHSession | TartSession`
 
 #### 4. Test Files Created
+
 - `basic-memory-tart-no-claude.test.ts` - ✅ ALL 9 STEPS PASSING
   - Validates ftk init file creation without API key requirement
   - Tests: connection, cleanup, ftk init, file validation, claude installation
@@ -458,6 +492,7 @@ ftk init --servers=basic-memory --context-dir=context --skip-checks --yes
 - `basic-memory.test.ts` - Original SSH-based test (kept for reference)
 
 #### 5. Documentation
+
 - `tests/integration/scenarios/server-validation/README.md` - Complete testing guide
 - `Justfile` - Added server validation commands
 - `docs/justfile.md` - Updated command reference
@@ -465,6 +500,7 @@ ftk init --servers=basic-memory --context-dir=context --skip-checks --yes
 ### Test Results
 
 **Passing Test** (`basic-memory-tart-no-claude.test.ts`):
+
 ```
 ✅ setup - connect to VM (682ms)
 ✅ setup - clean previous test artifacts (47ms)
@@ -482,6 +518,7 @@ ftk init --servers=basic-memory --context-dir=context --skip-checks --yes
 ### VM Configuration
 
 **FTK-test VM**:
+
 - OS: macOS Sequoia
 - Node.js: v24.10.0 (via Homebrew)
 - Python: 3.14 (via Homebrew)

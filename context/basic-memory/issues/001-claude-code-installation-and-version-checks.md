@@ -57,7 +57,6 @@ tags:
 - relates-to: [[claude-code-installation-checking-enhancement]]
 - uses-technology: [deno, semver, github-api]
 
-
 ## 📋 CODE REVIEW FINDINGS — Identified Issues
 
 ### Critical Issues (from Code Review Agent)
@@ -109,11 +108,13 @@ tags:
 ### Decisions
 
 **Windows Support**: DEFERRED
+
 - All Windows-related fixes (shell compatibility, `which` command, winget support) are being deferred to future work
 - Current implementation targets macOS/Linux only
 - Rationale: Simplifies initial release, Windows support can be added when there's demand
 
 **MIN_CLAUDE_VERSION**: Set to **1.0.60**
+
 - This is the version where custom subagents were introduced
 - FTK requires subagent support for Task tool functionality
 - Release note: "You can now create custom subagents for specialized tasks! Run /agents to get started"
@@ -121,33 +122,38 @@ tags:
 ### Priority Order for Fixes
 
 **P0 - Critical Security**:
+
 - Command injection vulnerability (init.ts:59-65, 145-149, 276-280)
 
 **P1 - Important**:
+
 - MIN_CLAUDE_VERSION update to 1.0.60
 - Cache TTL implementation (5-minute expiry)
 - Changelog maxChanges enforcement
 
 **P2 - Minor**:
+
 - Missing await in test
 - Hardcoded version string (import constant)
 - Test assertion update for new MIN_CLAUDE_VERSION
 
 **DEFERRED - Windows Support**:
-- Windows shell compatibility
-- `which` command Windows support  
-- Winget support
 
+- Windows shell compatibility
+- `which` command Windows support
+- Winget support
 
 ## ⏳ IN PROGRESS — Phase 5: Code Review Fixes
 
 ### Critical Security Fixes
+
 - [x] Command injection vulnerability (init.ts:59-65, 145-149, 276-280)
   - Replaced `sh -c` shell interpolation with direct command execution
   - Parse command strings and use Deno.Command with args array
   - Status: Fixed in all 3 locations
 
 ### P1 - Important Fixes
+
 - [x] MIN_CLAUDE_VERSION update to 1.0.60
   - Updated constant from 1.0.0 to 1.0.60 (subagent support requirement)
   - Updated comment to reference custom subagents feature
@@ -164,6 +170,7 @@ tags:
   - Status: Complete
 
 ### P2 - Minor Fixes
+
 - [x] Missing await in test (claude-version-scenarios.test.ts:37)
   - Added await to `getUpgradeCommand()` call
   - Status: Complete
@@ -176,8 +183,9 @@ tags:
   - Status: Complete
 
 ### Deferred (Windows Support)
+
 - [ ] Windows shell compatibility - DEFERRED
-- [ ] `which` command Windows support - DEFERRED  
+- [ ] `which` command Windows support - DEFERRED
 - [ ] Winget support for Windows - DEFERRED
 
 **Test Results**: All 22 unit tests passing ✅

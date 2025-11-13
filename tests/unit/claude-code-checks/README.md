@@ -31,6 +31,7 @@ Tests changelog fetching and parsing from GitHub:
 **Run:** `deno run --allow-net tests/unit/claude-code-checks/changelog.test.ts`
 
 **Sample Output:**
+
 ```
 📦 Version 2.0.20:
    • Added support for Claude Skills

@@ -13,11 +13,11 @@ import { Prompts } from "../ui/prompts.ts";
 import { DefaultLifecycleContext } from "../lib/lifecycle-context.ts";
 import {
   checkClaudeCodeInstallation,
+  checkForUpgrade,
+  clearVersionCache,
   getInstallationInstructions,
   getInstallCommand,
   getUpgradeCommand,
-  checkForUpgrade,
-  clearVersionCache,
   MIN_CLAUDE_VERSION,
 } from "../utils/claude-version.ts";
 import { getVersionChanges } from "../utils/changelog.ts";
@@ -50,7 +50,7 @@ export class InitCommand {
 
             const shouldInstall = await Prompts.confirm(
               "Install Claude Code?",
-              false
+              false,
             );
 
             if (shouldInstall) {
@@ -88,7 +88,9 @@ export class InitCommand {
                   return;
                 }
               } catch (error) {
-                Prompts.error(`Installation error: ${error instanceof Error ? error.message : String(error)}`);
+                Prompts.error(
+                  `Installation error: ${error instanceof Error ? error.message : String(error)}`,
+                );
                 console.log("\nPlease install manually:");
                 console.log(getInstallationInstructions());
                 return;
@@ -106,10 +108,11 @@ export class InitCommand {
             console.log("Or use 'ftk init --skip-checks' to bypass this check.\n");
             return;
           }
-        }
-        // Scenario 2: Outdated version
+        } // Scenario 2: Outdated version
         else if (!versionCheck.meetsRequirements) {
-          Prompts.warning(`Claude Code version ${versionCheck.version} is outdated (minimum: v${MIN_CLAUDE_VERSION})`);
+          Prompts.warning(
+            `Claude Code version ${versionCheck.version} is outdated (minimum: v${MIN_CLAUDE_VERSION})`,
+          );
 
           const upgradeCmd = await getUpgradeCommand();
 
@@ -138,7 +141,7 @@ export class InitCommand {
 
             const shouldUpgrade = await Prompts.confirm(
               "Upgrade Claude Code?",
-              false
+              false,
             );
 
             if (shouldUpgrade) {
@@ -165,12 +168,14 @@ export class InitCommand {
                   if (recheckResult.meetsRequirements) {
                     Prompts.success(`Claude Code ${recheckResult.version} is ready`);
                   } else {
-                    Prompts.warning("Upgrade completed but version still doesn't meet requirements");
+                    Prompts.warning(
+                      "Upgrade completed but version still doesn't meet requirements",
+                    );
                     console.log("Please verify the upgrade and try again.\n");
 
                     const shouldContinue = await Prompts.confirm(
                       "Continue anyway?",
-                      false
+                      false,
                     );
 
                     if (!shouldContinue) {
@@ -185,7 +190,7 @@ export class InitCommand {
 
                   const shouldContinue = await Prompts.confirm(
                     "Continue with current version?",
-                    false
+                    false,
                   );
 
                   if (!shouldContinue) {
@@ -194,13 +199,15 @@ export class InitCommand {
                   }
                 }
               } catch (error) {
-                Prompts.error(`Upgrade error: ${error instanceof Error ? error.message : String(error)}`);
+                Prompts.error(
+                  `Upgrade error: ${error instanceof Error ? error.message : String(error)}`,
+                );
                 console.log("\nPlease upgrade manually:");
                 console.log(getInstallationInstructions());
 
                 const shouldContinue = await Prompts.confirm(
                   "Continue with current version?",
-                  false
+                  false,
                 );
 
                 if (!shouldContinue) {
@@ -213,7 +220,7 @@ export class InitCommand {
 
               const shouldContinue = await Prompts.confirm(
                 "Continue anyway?",
-                false
+                false,
               );
 
               if (!shouldContinue) {
@@ -229,7 +236,7 @@ export class InitCommand {
             if (!options.noPrompt) {
               const shouldContinue = await Prompts.confirm(
                 "Continue anyway?",
-                false
+                false,
               );
 
               if (!shouldContinue) {
@@ -238,8 +245,7 @@ export class InitCommand {
               }
             }
           }
-        }
-        // Scenario 3: Up to date - check for upgrades
+        } // Scenario 3: Up to date - check for upgrades
         else {
           Prompts.success(`Claude Code ${versionCheck.version} detected`);
 
@@ -271,7 +277,7 @@ export class InitCommand {
 
                 const shouldUpgrade = await Prompts.confirm(
                   "Upgrade to latest version?",
-                  false
+                  false,
                 );
 
                 if (shouldUpgrade) {
@@ -295,7 +301,9 @@ export class InitCommand {
                       Prompts.warning("Upgrade failed - continuing with current version");
                     }
                   } catch (error) {
-                    Prompts.warning(`Upgrade error: ${error instanceof Error ? error.message : String(error)}`);
+                    Prompts.warning(
+                      `Upgrade error: ${error instanceof Error ? error.message : String(error)}`,
+                    );
                     Prompts.info("Continuing with current version");
                   }
                 }

@@ -16,6 +16,7 @@ tags:
 ## Overview
 
 Create comprehensive integration tests to validate that each MCP server installed via `ftk init` works correctly end-to-end. Tests will run in Tart VM environment and verify:
+
 1. Server selection and configuration
 2. Directory structure creation
 3. MCP server functionality via Claude Code
@@ -37,12 +38,14 @@ This enables automated testing of MCP server functionality without interactive s
 **File**: `src/commands/init.ts`
 
 Add CLI flags for automation:
+
 - `--servers <list>` - Comma-separated server names (e.g., "basic-memory,sequential")
 - `--context-dir <name>` - Context directory name (default: "context")
 - `--skip-claude-checks` - Skip Claude Code installation validation
 - `--yes` / `-y` - Auto-confirm all prompts
 
 **Implementation**:
+
 ```typescript
 interface InitOptions {
   servers?: string;
@@ -52,21 +55,21 @@ interface InitOptions {
 }
 
 async function runNonInteractive(options: InitOptions) {
-  const selectedServers = options.servers?.split(',').map(s => s.trim()) || [];
-  const contextDirName = options.contextDir || 'context';
-  
+  const selectedServers = options.servers?.split(",").map((s) => s.trim()) || [];
+  const contextDirName = options.contextDir || "context";
+
   // Validate server names against registry
   for (const server of selectedServers) {
-    if (!availableServers.find(s => s.name === server)) {
+    if (!availableServers.find((s) => s.name === server)) {
       throw new Error(`Unknown server: ${server}`);
     }
   }
-  
+
   // Skip Claude checks if requested (for testing)
   if (!options.skipClaudeChecks) {
     await performClaudeChecks(options);
   }
-  
+
   // Generate configuration files
   await generateMcpConfig(selectedServers);
   await setupContextDirectory(contextDirName, selectedServers);
@@ -75,6 +78,7 @@ async function runNonInteractive(options: InitOptions) {
 ```
 
 **Usage Example**:
+
 ```bash
 # Interactive mode (existing behavior)
 ftk init
@@ -92,7 +96,7 @@ Add file operation helper methods:
 ```typescript
 export class SSHSession {
   // ... existing code ...
-  
+
   /**
    * Check if file or directory exists on remote system
    */
@@ -100,7 +104,7 @@ export class SSHSession {
     const result = await this.sendCommand(`test -e ${path} && echo exists || echo notfound`);
     return result.output.trim() === "exists";
   }
-  
+
   /**
    * Read file contents from remote system
    */
@@ -111,7 +115,7 @@ export class SSHSession {
     }
     return result.output;
   }
-  
+
   /**
    * Write file contents to remote system
    */
@@ -119,27 +123,27 @@ export class SSHSession {
     const escapedContent = content.replace(/'/g, "'\\''");
     await this.sendCommand(`echo '${escapedContent}' > ${path}`);
   }
-  
+
   /**
    * Create directory on remote system
    */
   async mkdir(path: string): Promise<void> {
     await this.sendCommand(`mkdir -p ${path}`);
   }
-  
+
   /**
    * Remove file or directory on remote system
    */
   async remove(path: string): Promise<void> {
     await this.sendCommand(`rm -rf ${path}`);
   }
-  
+
   /**
    * List directory contents
    */
   async ls(path: string): Promise<string[]> {
     const result = await this.sendCommand(`ls -1 ${path}`);
-    return result.output.trim().split('\n').filter(line => line.length > 0);
+    return result.output.trim().split("\n").filter((line) => line.length > 0);
   }
 }
 ```
@@ -163,19 +167,20 @@ export interface FtkInitOptions {
  */
 export async function runFtkInit(
   session: SSHSession,
-  options: FtkInitOptions
+  options: FtkInitOptions,
 ): Promise<void> {
   const { servers, contextDir = "context", projectDir } = options;
-  
+
   // Create project directory
   await session.mkdir(projectDir);
-  
+
   // Build ftk init command
-  const serverList = servers.join(',');
-  const cmd = `cd ${projectDir} && ftk init --servers=${serverList} --context-dir=${contextDir} --skip-claude-checks --yes`;
-  
+  const serverList = servers.join(",");
+  const cmd =
+    `cd ${projectDir} && ftk init --servers=${serverList} --context-dir=${contextDir} --skip-claude-checks --yes`;
+
   const result = await session.sendCommand(cmd);
-  
+
   if (result.exitCode !== 0) {
     throw new Error(`ftk init failed: ${result.stderr}`);
   }
@@ -187,26 +192,26 @@ export async function runFtkInit(
 export async function validateMcpConfig(
   session: SSHSession,
   projectDir: string,
-  expectedServers: string[]
+  expectedServers: string[],
 ): Promise<void> {
   const mcpConfigPath = `${projectDir}/.mcp.json`;
-  
+
   // Verify file exists
   const exists = await session.fileExists(mcpConfigPath);
   assertEquals(exists, true, `.mcp.json not found at ${mcpConfigPath}`);
-  
+
   // Read and parse config
   const content = await session.readFile(mcpConfigPath);
   const config = JSON.parse(content);
-  
+
   // Verify structure
   assertExists(config.mcpServers, "mcpServers object missing");
-  
+
   // Verify each expected server
   for (const server of expectedServers) {
     assertExists(
       config.mcpServers[server],
-      `Server ${server} not found in .mcp.json`
+      `Server ${server} not found in .mcp.json`,
     );
   }
 }
@@ -218,14 +223,14 @@ export async function validateServerDirectory(
   session: SSHSession,
   projectDir: string,
   server: string,
-  contextDir = "context"
+  contextDir = "context",
 ): Promise<void> {
   const serverDir = `${projectDir}/${contextDir}/${server}`;
   const exists = await session.fileExists(serverDir);
   assertEquals(
     exists,
     true,
-    `Expected directory not found: ${serverDir}`
+    `Expected directory not found: ${serverDir}`,
   );
 }
 
@@ -235,21 +240,21 @@ export async function validateServerDirectory(
 export async function validateClaudeMd(
   session: SSHSession,
   projectDir: string,
-  expectedServers: string[]
+  expectedServers: string[],
 ): Promise<void> {
   const claudeMdPath = `${projectDir}/CLAUDE.md`;
   const exists = await session.fileExists(claudeMdPath);
   assertEquals(exists, true, "CLAUDE.md not found");
-  
+
   const content = await session.readFile(claudeMdPath);
-  
+
   // Verify server instructions are present
   for (const server of expectedServers) {
     const hasServerDocs = content.includes(server);
     assertEquals(
       hasServerDocs,
       true,
-      `CLAUDE.md missing documentation for ${server}`
+      `CLAUDE.md missing documentation for ${server}`,
     );
   }
 }
@@ -260,15 +265,15 @@ export async function validateClaudeMd(
 export async function runClaudeHeadless(
   session: SSHSession,
   projectDir: string,
-  prompt: string
+  prompt: string,
 ): Promise<string> {
   const cmd = `cd ${projectDir} && claude --headless "${prompt}"`;
   const result = await session.sendCommand(cmd, { timeout: 30000 });
-  
+
   if (result.exitCode !== 0) {
     throw new Error(`Claude Code failed: ${result.stderr}`);
   }
-  
+
   return result.output;
 }
 ```
@@ -281,11 +286,11 @@ export async function runClaudeHeadless(
 import { assertEquals } from "@std/assert";
 import { SSHSession } from "../../tart/ssh-session.ts";
 import {
+  runClaudeHeadless,
   runFtkInit,
+  validateClaudeMd,
   validateMcpConfig,
   validateServerDirectory,
-  validateClaudeMd,
-  runClaudeHeadless,
 } from "./validation-helpers.ts";
 
 const TEST_VM_IP = Deno.env.get("TEST_VM_IP") || "192.168.64.x";
@@ -293,15 +298,15 @@ const TEST_PROJECT_DIR = "/tmp/ftk-test-basic-memory";
 
 Deno.test("basic-memory MCP server validation", async (t) => {
   const session = new SSHSession(TEST_VM_IP, "admin");
-  
+
   await t.step("setup - connect to VM", async () => {
     await session.connect();
   });
-  
+
   await t.step("setup - clean previous test artifacts", async () => {
     await session.remove(TEST_PROJECT_DIR);
   });
-  
+
   await t.step("run ftk init with basic-memory server", async () => {
     await runFtkInit(session, {
       servers: ["basic-memory"],
@@ -309,68 +314,70 @@ Deno.test("basic-memory MCP server validation", async (t) => {
       projectDir: TEST_PROJECT_DIR,
     });
   });
-  
+
   await t.step("verify .mcp.json configuration", async () => {
     await validateMcpConfig(session, TEST_PROJECT_DIR, ["basic-memory"]);
   });
-  
+
   await t.step("verify context/basic-memory directory created", async () => {
     await validateServerDirectory(
       session,
       TEST_PROJECT_DIR,
       "basic-memory",
-      "context"
+      "context",
     );
   });
-  
+
   await t.step("verify CLAUDE.md updated", async () => {
     await validateClaudeMd(session, TEST_PROJECT_DIR, ["basic-memory"]);
   });
-  
+
   await t.step("test Claude Code - write note via MCP", async () => {
-    const prompt = "Use the basic-memory MCP server to create a new note titled 'Integration Test Note' with the content 'This note was created during automated testing to verify basic-memory MCP functionality.'";
-    
+    const prompt =
+      "Use the basic-memory MCP server to create a new note titled 'Integration Test Note' with the content 'This note was created during automated testing to verify basic-memory MCP functionality.'";
+
     const output = await runClaudeHeadless(session, TEST_PROJECT_DIR, prompt);
-    
+
     // Verify output indicates success
     const successIndicators = [
       "created",
       "note",
       "Integration Test Note",
     ];
-    
-    const hasSuccess = successIndicators.some(indicator =>
+
+    const hasSuccess = successIndicators.some((indicator) =>
       output.toLowerCase().includes(indicator.toLowerCase())
     );
-    
+
     assertEquals(hasSuccess, true, "Claude output doesn't indicate note creation");
   });
-  
+
   await t.step("test Claude Code - read note via MCP", async () => {
-    const prompt = "Use the basic-memory MCP server to find and read the note titled 'Integration Test Note'. Show me its content.";
-    
+    const prompt =
+      "Use the basic-memory MCP server to find and read the note titled 'Integration Test Note'. Show me its content.";
+
     const output = await runClaudeHeadless(session, TEST_PROJECT_DIR, prompt);
-    
+
     // Verify the note content appears in output
     const hasNoteContent = output.includes("automated testing") &&
-                           output.includes("verify basic-memory MCP functionality");
-    
+      output.includes("verify basic-memory MCP functionality");
+
     assertEquals(hasNoteContent, true, "Note content not found in Claude output");
   });
-  
+
   await t.step("verify note file created in correct location", async () => {
     const noteDir = `${TEST_PROJECT_DIR}/context/basic-memory`;
     const files = await session.ls(noteDir);
-    
+
     // Basic-memory creates note files - verify at least one exists
     const hasNoteFiles = files.length > 0;
     assertEquals(hasNoteFiles, true, "No note files found in basic-memory directory");
   });
-  
+
   await t.step("cleanup - remove test artifacts", async () => {
     await session.remove(TEST_PROJECT_DIR);
   });
-  
+
   await t.step("cleanup - disconnect from VM", async () => {
     await session.disconnect();
   });
@@ -381,7 +388,7 @@ Deno.test("basic-memory MCP server validation", async (t) => {
 
 **File**: `tests/integration/scenarios/server-validation/README.md`
 
-```markdown
+````markdown
 # MCP Server Validation Tests
 
 Integration tests that validate MCP server installation and functionality.
@@ -389,6 +396,7 @@ Integration tests that validate MCP server installation and functionality.
 ## Overview
 
 These tests verify that:
+
 1. `ftk init` correctly configures MCP servers
 2. Required directories and files are created
 3. MCP servers are functional via Claude Code
@@ -418,6 +426,7 @@ deno test tests/integration/scenarios/server-validation/basic-memory.test.ts
 # Set VM IP if needed
 TEST_VM_IP=192.168.64.10 deno test tests/integration/scenarios/server-validation/
 ```
+````
 
 ## Test Structure
 
@@ -462,21 +471,25 @@ See `validation-helpers.ts` for reusable test utilities:
 ## Troubleshooting
 
 **VM Connection Issues**:
+
 - Verify VM is running: `just vm-list`
 - Check IP address: `tart ip <vm-name>`
 - Test SSH: `just vm-ssh`
 
 **ftk Command Not Found**:
+
 - Install ftk in VM: `just vm-install-ftk`
 
 **Claude Code Not Installed**:
+
 - Install in VM: `npm install -g @anthropic-ai/claude-code`
 
 **Test Timeout**:
+
 - Increase timeout in `runClaudeHeadless()` call
 - Claude prompts may take 10-30s depending on complexity
-```
 
+````
 ## Justfile Additions
 
 Add commands to `Justfile` for running server validation tests:
@@ -499,7 +512,7 @@ vm-test-setup VM_NAME="FTK-test":
     just vm-install-ftk
     tart run {{VM_NAME}} -- npm install -g @anthropic-ai/claude-code
     echo "VM ready for testing!"
-```
+````
 
 ## Success Criteria
 

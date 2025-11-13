@@ -27,11 +27,13 @@ Test complete workflows in isolated Tart VM environments.
 ## Running Tests
 
 ### All Unit Tests
+
 ```bash
 deno run --allow-all tests/unit/**/*.test.ts
 ```
 
 ### Claude Code Check Unit Tests
+
 ```bash
 # All tests
 deno run --allow-all tests/unit/claude-code-checks/*.test.ts
@@ -43,6 +45,7 @@ deno run --allow-all tests/unit/claude-code-checks/install-method-detection.test
 ```
 
 ### Integration Tests
+
 ```bash
 # All integration tests
 deno task test:integration
@@ -54,6 +57,7 @@ deno test --allow-all tests/integration/scenarios/init-no-prompt.test.ts
 ## Test Categories
 
 ### Unit Tests
+
 - ✅ Fast execution (milliseconds to seconds)
 - ✅ No external dependencies
 - ✅ Test pure functions and utilities
@@ -61,6 +65,7 @@ deno test --allow-all tests/integration/scenarios/init-no-prompt.test.ts
 - ✅ Part of CI pipeline
 
 ### Integration Tests
+
 - ✅ Slower execution (minutes)
 - ✅ Require Tart VMs
 - ✅ Test complete workflows
@@ -70,7 +75,9 @@ deno test --allow-all tests/integration/scenarios/init-no-prompt.test.ts
 ## Writing Tests
 
 ### Unit Tests
+
 Place in `tests/unit/` organized by feature:
+
 ```typescript
 import { functionToTest } from "../../src/utils/module.ts";
 
@@ -81,7 +88,9 @@ Deno.test("descriptive test name", () => {
 ```
 
 ### Integration Tests
+
 Place in `tests/integration/scenarios/`:
+
 ```typescript
 import { TartVMHarness } from "../tart/vm-harness.ts";
 import { SSHSession } from "../tart/ssh-session.ts";
@@ -101,6 +110,7 @@ Deno.test({
 ## Coverage Areas
 
 ### Unit Test Coverage
+
 - ✅ Version parsing and comparison
 - ✅ Installation method detection
 - ✅ Command generation
@@ -109,6 +119,7 @@ Deno.test({
 - ✅ Configuration validation
 
 ### Integration Test Coverage
+
 - ✅ Full ftk init workflow
 - ✅ Interactive mode (keyboard simulation)
 - ✅ No-prompt mode
@@ -119,10 +130,12 @@ Deno.test({
 ## CI/CD Integration
 
 ### Current Setup
+
 - Unit tests: Run on every commit
 - Integration tests: Manual execution (VM requirements)
 
 ### Future Enhancements
+
 - Parallel test execution
 - GitHub Actions with Tart support
 - Performance benchmarking

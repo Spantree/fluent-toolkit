@@ -4,10 +4,10 @@
 
 import {
   fetchChangelog,
-  parseChangelog,
-  getChangesBetweenVersions,
   formatChangelog,
+  getChangesBetweenVersions,
   getVersionChanges,
+  parseChangelog,
 } from "../../../src/utils/changelog.ts";
 
 console.log("=== Changelog Utility Tests ===\n");

@@ -8,8 +8,8 @@ import {
   checkForUpgrade,
   getInstallCommand,
   getUpgradeCommand,
-  parseVersion,
   meetsMinimumVersion,
+  parseVersion,
 } from "../../../src/utils/claude-version.ts";
 
 console.log("=== Claude Code Version Checking Tests ===\n");

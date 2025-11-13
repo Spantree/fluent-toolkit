@@ -146,10 +146,12 @@ The context directory feature allows MCP servers to store data:
 When using Basic Memory MCP for project notes and plans:
 
 **File Naming**:
+
 - Use kebab-case for filenames (e.g., `claude-code-checks.md`, `mcp-authentication-setup.md`)
 - Titles in frontmatter should use Title Case (e.g., `title: "Issue 1: Add Claude Code Installation and Version Checks"`)
 
 **Frontmatter Requirements**:
+
 ```yaml
 ---
 title: "Issue Title in Title Case"
@@ -165,6 +167,7 @@ tags:
 ```
 
 **Plan Structure**:
+
 - Use status emojis: 📌 BACKLOG, ⏳ IN PROGRESS, ✅ COMPLETED
 - Include observations and relations sections
 - Reference source files and implementations
@@ -219,12 +222,14 @@ The `ftk init` command includes comprehensive Claude Code installation checking:
    - Non-blocking - setup continues regardless
 
 **Installation Method Detection:**
+
 - Automatically detects if Claude Code was installed via npm or brew
 - Uses npm commands for npm installations
 - Uses brew commands for Homebrew installations
 - Defaults to npm (official method) for new installations
 
 **Flags:**
+
 - `--skip-checks` - Skip Claude Code version checking entirely
 - `--no-prompt` - Show instructions but don't offer automatic install/upgrade
 
@@ -254,6 +259,7 @@ All features MUST be developed in dedicated feature branches following this nami
 ### Local Development
 
 **Using Justfile (Recommended):**
+
 ```bash
 just dev init              # Run ftk in development mode
 just check                 # Type check
@@ -263,6 +269,7 @@ just vm-setup              # Setup Tart VM for integration testing
 ```
 
 **Using Deno directly:**
+
 1. **Local testing**: `deno task dev init`
 2. **Type checking**: `deno check src/main.ts`
 3. **Formatting**: `deno fmt`

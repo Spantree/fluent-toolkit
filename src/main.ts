@@ -22,27 +22,27 @@ await new Command()
   .globalOption("-v, --verbose", "Enable verbose output")
   // Init command
   .command("init", "Initialize MCP servers for Claude Code in current project")
-    .option("-f, --force", "Force re-initialization even if already configured")
-    .option("--skip-validation", "Skip dependency validation checks")
-    .option("--skip-checks", "Skip Claude Code installation and version checks")
-    .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
-    .option("-c, --context-dir <dir:string>", "Context directory name (default: context)")
-    .option("--no-prompt", "Accept all defaults without prompting")
-    .option("-y, --yes", "Auto-confirm all prompts (same as --no-prompt)")
-    .action(async (options) => {
-      const initOptions: InitOptions = {
-        force: options.force,
-        skipValidation: options.skipValidation,
-        skipChecks: options.skipChecks,
-        servers: options.servers,
-        contextDir: options.contextDir,
-        noPrompt: !options.prompt || options.yes, // --no-prompt or -y
-        yes: options.yes,
-      };
+  .option("-f, --force", "Force re-initialization even if already configured")
+  .option("--skip-validation", "Skip dependency validation checks")
+  .option("--skip-checks", "Skip Claude Code installation and version checks")
+  .option("-s, --servers <servers:string[]>", "Specify servers to install (comma-separated)")
+  .option("-c, --context-dir <dir:string>", "Context directory name (default: context)")
+  .option("--no-prompt", "Accept all defaults without prompting")
+  .option("-y, --yes", "Auto-confirm all prompts (same as --no-prompt)")
+  .action(async (options) => {
+    const initOptions: InitOptions = {
+      force: options.force,
+      skipValidation: options.skipValidation,
+      skipChecks: options.skipChecks,
+      servers: options.servers,
+      contextDir: options.contextDir,
+      noPrompt: !options.prompt || options.yes, // --no-prompt or -y
+      yes: options.yes,
+    };
 
-      await InitCommand.execute(initOptions);
-    })
-    .reset()  // Reset to root command before adding default action
+    await InitCommand.execute(initOptions);
+  })
+  .reset() // Reset to root command before adding default action
   // Default action (show help)
   .action(function () {
     this.showHelp();
