@@ -18,7 +18,8 @@ export class BasicMemoryServer extends BaseMCPServer {
     name: "Basic Memory",
     description: "Persistent memory and note-taking capabilities for Claude Code",
     category: "core",
-    version: "1.0.0",
+    packageName: "basic-memory",
+    packageRegistry: "pypi",
     homepage: "https://github.com/cyanheads/basic-memory",
   };
 
@@ -109,16 +110,18 @@ export class BasicMemoryServer extends BaseMCPServer {
     }
   }
 
-  protected override generateMcpConfig(_secrets: Record<string, string>, _version?: string) {
+  protected override generateMcpConfig(_secrets: Record<string, string>, version?: string) {
     // Get the project name from the current directory
     const cwd = Deno.cwd();
     const projectName = cwd.split("/").pop() || "fluent-toolkit";
 
-    // Basic Memory uses custom command, version parameter ignored
+    // Build package spec with optional version pinning (uvx format: package==version)
+    const packageSpec = version ? `basic-memory==${version}` : "basic-memory";
+
     return {
       command: "uvx",
       args: [
-        "basic-memory",
+        packageSpec,
         "mcp",
         `--project=${projectName}`,
       ],
