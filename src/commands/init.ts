@@ -18,6 +18,7 @@ import {
   getUpgradeCommand,
   checkForUpgrade,
   clearVersionCache,
+  MIN_CLAUDE_VERSION,
 } from "../utils/claude-version.ts";
 import { getVersionChanges } from "../utils/changelog.ts";
 import type { InitOptions, MCPServerEntry, MCPServerModule } from "../types/index.ts";
